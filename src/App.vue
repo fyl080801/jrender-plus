@@ -1,21 +1,88 @@
-<script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import HelloWorld from './components/HelloWorld.vue'
+<script lang="ts" setup>
+import { JRender } from '@jrender-plus/core'
+import { reactive } from 'vue'
+
+const configs = reactive({
+  model: {},
+  fields: [
+    {
+      component: 'div',
+      props: { style: { marginBottom: '20px' } },
+      children: [
+        { component: 'p', props: { innerText: 'ssss' } },
+        {
+          component: 'input',
+          props: { value: '$:model.text', onInput: '$:(e)=>model.text=e.target.value' },
+        },
+        { component: 'p', props: { innerText: '$:model.text' } },
+        {
+          component: 'input',
+          props: {
+            value: '$:model.obj.text',
+            onInput: '$:(e)=>SET(model, "obj.text", e.target.value)',
+          },
+        },
+      ],
+    },
+
+    {
+      component: 'el-form',
+      props: { labelWidth: '120px' },
+      children: [
+        {
+          component: 'el-input',
+          formItem: { label: 'ssss' },
+          rel: true,
+          props: {
+            style: { width: 'auto' },
+            modelValue: '$:model.obj.text',
+            'onUpdate:modelValue': '$:(e)=>SET(model, "obj.text", e)',
+          },
+          children: [{ component: 'span', slot: 'append', props: { innerText: 'aaa' } }],
+        },
+      ],
+    },
+  ],
+})
+
+const onSetup = ({ onBeforeRender }) => {
+  onBeforeRender((field, next) => {
+    if (!field.formItem) {
+      return next(field)
+    }
+
+    const formItem = field.formItem
+
+    delete field.formItem
+
+    return next({ component: 'el-form-item', props: formItem, children: [field] })
+  })
+
+  onBeforeRender((field, next) => {
+    if (field.rel !== true) {
+      return next(field)
+    }
+
+    let counter = 3
+
+    next({ component: 'p', props: { innerText: `Loading (${counter + 1})` } })
+
+    const timer = setInterval(() => {
+      if (counter > 0) {
+        next({ component: 'p', props: { innerText: `Loading (${counter})` } })
+        counter--
+      } else {
+        clearInterval(timer)
+        next(field)
+      }
+    }, 1000)
+  })
+}
 </script>
 
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
+  <div>
+    <JRender :fields="configs.fields" v-model="configs.model" @setup="onSetup" />
+    <p>{{ JSON.stringify(configs.model) }}</p>
+  </div>
 </template>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
