@@ -7,19 +7,21 @@ datasource:
           value: 1
         - name: sel2
           value: 2
+
+  tabledata:
+    type: fetch
+    props:
+      url: /data/table.json
+      type: json
+      props:
+        method: GET
+
 listeners:
   - watch: $:model.text
     actions:
       - handler: $:() => console.log('xxx')
-  - watch: $:model.checks
-    actions:
-      - handler: |
-          $:() => {
-            model.updating = true
-            NEXTTICK(() => {
-              model.updating = false
-            })
-          }
+      - handler: $:() => tabledata.fetch()
+        condition: $:model.text && model.text.length === 5
 
 fields:
   - component: div
@@ -27,13 +29,35 @@ fields:
       style:
         marginBottom: 20px
     children:
+      - component: slot
+        name: head
+
       - component: p
         props:
-          innerText: $:`input：${model.text||''}`
+          innerText: $:`input：${model.text || ''}`
+
       - component: input
+        props:
+          placeholder: 字数等于 5 后加载数据
         value: model.text
+
       - component: input
         value: model.obj.text
+        props:
+          placeholder: $:model.text
+
+      - component: slot # slot 内容
+
+  - component: el-button
+    props:
+      onClick: $:() => tabledata.fetch()
+      innerText: 加载数据
+
+  - component: el-button
+    props:
+      onClick: $:() => tabledata.data = []
+      innerText: 清除数据
+
   - component: el-form
     props:
       labelWidth: 120px
@@ -51,30 +75,54 @@ fields:
             slot: append
             props:
               innerText: aaa
+
       - component: el-radio-group
         formItem:
-          label: select
-        radios: $:rawdata
+          label: radio
         model: model.sel
+        children:
+          - component: el-radio
+            for: $:tabledata.data
+            props:
+              label: $:scope.name
+            children:
+              - component: span
+                props:
+                  innerText: $:scope.remark
+
       - component: el-checkbox
         formItem:
           label: checked
         model: model.checked
+        children:
+          - component: span
+            props:
+              innerText: $:model.text
+
       - component: el-checkbox-group
         formItem:
           label: select
-        checkboxs: $:rawdata
         props:
           modelValue: $:GET(model, 'checks', [])
           onUpdate:modelValue: $:(e) => SET(model, 'checks', e)
+        children:
+          - component: el-checkbox
+            for: $:rawdata
+            props:
+              label: $:scope.value
+            children:
+              - component: span
+                props:
+                  innerText: $:scope.name
+
       - component: el-select
         formItem:
           condition: $:!model.checked
           label: selection
         model: model.selection
-        # children:
-        #   - component: el-option
-        #     props:
-        #       label: aaa
-        #       value: 1
-        options: $:model.checks
+        children:
+          - component: el-option
+            for: $:model.checks
+            props:
+              label: $:`选项${scope}`
+              value: $:scope

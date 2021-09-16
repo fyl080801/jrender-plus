@@ -1,1 +1,4 @@
-[{ "name": "aaa", "remark": "aaaaaa" }]
+[
+  { "name": "aaa", "remark": "aaaaaa" },
+  { "name": "bbb", "remark": "bbbbbb" }
+]
