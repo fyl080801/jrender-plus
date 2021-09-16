@@ -35,13 +35,8 @@ const JNode = defineComponent({
     )
 
     watch(
-      () => props.field?.children,
+      () => renderField.value?.children,
       () => {
-        // pipeline(...mergedServices.beforeRenderHandlers, (field, next) => {
-        //   renderField.value = injector(field)
-        //   next(renderField.value)
-        // })(assignObject(props.field))
-
         const slotGroups = renderField.value?.children?.reduce((target, child) => {
           const slotName = child.slot || 'default'
           target[slotName] ||= []
