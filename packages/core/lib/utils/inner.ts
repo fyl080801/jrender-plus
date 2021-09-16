@@ -1,5 +1,7 @@
 import { deepGet, hasOwnProperty, isArray, isNumberLike, toPath } from './helper'
 
+const computeMatch = /^\$:/g
+
 export const compute =
   ({ functional }) =>
   (value) => {
@@ -7,7 +9,7 @@ export const compute =
       try {
         const keys = Object.keys(context)
         const funcKeys = Object.keys(functional)
-        return new Function(...[...keys, ...funcKeys], `return ${value.replace('$:', '')}`)(
+        return new Function(...[...keys, ...funcKeys], `return ${value.replace(computeMatch, '')}`)(
           ...[...keys.map((key) => context[key]), ...funcKeys.map((key) => functional[key])],
         )
       } catch {
@@ -15,7 +17,7 @@ export const compute =
       }
     }
 
-    return typeof value === 'string' && value.startsWith('$:') && handler
+    return typeof value === 'string' && computeMatch.test(value) && handler
   }
 
 export const SET = (target, path, value) => {

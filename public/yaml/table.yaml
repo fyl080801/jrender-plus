@@ -1,0 +1,27 @@
+---
+datasource:
+  rawdata:
+    props:
+      data:
+        - name: sel1
+          value: 1
+        - name: sel2
+          value: 2
+  tabledata:
+    type: fetch
+    props:
+      url: /data/table.json
+      autoLoad: true
+      type: json
+      props:
+        method: GET
+
+fields:
+  - component: el-table
+    props:
+      data: $:tabledata.data
+    children:
+      - component: el-table-column
+        props:
+          label: name
+          prop: name

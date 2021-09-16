@@ -1,0 +1,76 @@
+---
+datasource:
+  rawdata:
+    props:
+      data:
+        - name: sel1
+          value: 1
+        - name: sel2
+          value: 2
+listeners:
+  - watch: $:model.text
+    actions:
+      - handler: $:() => console.log('xxx')
+  - watch: $:model.checks
+    actions:
+      - handler: |
+          $:() => {
+            model.updating = true
+            NEXTTICK(() => {
+              model.updating = false
+            })
+          }
+
+fields:
+  - component: div
+    props:
+      style:
+        marginBottom: 20px
+    children:
+      - component: p
+        props:
+          innerText: $:`input：${model.text||''}`
+      - component: input
+        value: model.text
+      - component: input
+        value: model.obj.text
+  - component: el-form
+    props:
+      labelWidth: 120px
+    children:
+      - component: el-input
+        formItem:
+          label: ssss
+        rel: true
+        model: model.obj.text
+        props:
+          style:
+            width: auto
+        children:
+          - component: span
+            slot: append
+            props:
+              innerText: aaa
+      - component: el-radio-group
+        formItem:
+          label: select
+        radios: $:rawdata
+        model: model.sel
+      - component: el-checkbox
+        formItem:
+          label: checked
+        model: model.checked
+      - component: el-checkbox-group
+        formItem:
+          label: select
+        checkboxs: $:rawdata
+        props:
+          modelValue: $:GET(model, 'checks', [])
+          onUpdate:modelValue: $:(e) => SET(model, 'checks', e)
+      - component: el-select
+        formItem:
+          condition: $:!model.checked
+          label: selection
+        model: model.selection
+
+        options: $:model.checks

@@ -72,7 +72,7 @@ export default defineComponent({
           const provider = mergedServices.dataSource[info.type || 'default']
 
           if (['model', 'scope', 'arguments', 'refs'].indexOf(key) < 0 && isFunction(provider)) {
-            context[key] = provider(() => injector(info.options))
+            context[key] = provider(() => injector(info.props))
           }
         })
       },
@@ -101,7 +101,7 @@ export default defineComponent({
     //#endregion
 
     //#region listeners 监听
-    const watchList = reactive([])
+    const watchList = []
     watch(
       () => props.listeners,
       (value) => {
@@ -120,12 +120,16 @@ export default defineComponent({
             watch(
               watcher,
               () => {
-                injected.actions.forEach((act) => {
-                  if (act.condition === undefined || !!act.condition) {
-                    if (act.timeout) {
-                      setTimeout(() => act.handler(), act.timeout)
-                    } else {
-                      act.handler()
+                injected.actions?.forEach((action) => {
+                  if (action.condition === undefined || !!action.condition) {
+                    if (isFunction(action.handler)) {
+                      if (action.timeout) {
+                        setTimeout(() => {
+                          action.handler()
+                        }, action.timeout)
+                      } else {
+                        action.handler()
+                      }
                     }
                   }
                 })

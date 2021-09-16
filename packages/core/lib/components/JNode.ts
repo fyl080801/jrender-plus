@@ -35,8 +35,13 @@ const JNode = defineComponent({
     )
 
     watch(
-      () => renderField.value?.children,
+      () => props.field?.children,
       () => {
+        // pipeline(...mergedServices.beforeRenderHandlers, (field, next) => {
+        //   renderField.value = injector(field)
+        //   next(renderField.value)
+        // })(assignObject(props.field))
+
         const slotGroups = renderField.value?.children?.reduce((target, child) => {
           const slotName = child.slot || 'default'
           target[slotName] ||= []
@@ -72,6 +77,7 @@ const JNode = defineComponent({
         mergedServices.components[renderField.value?.component] || renderField.value?.component
 
       let rending = {
+        ...(renderField.value || {}),
         component: renderComponent,
         props: deepClone(renderField.value?.props || {}),
       }
