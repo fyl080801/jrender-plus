@@ -85,7 +85,7 @@ const onSetup = ({ onBeforeRender }) => {
 }
 
 const onUpdate = () => {
-  configs.fields[0].children = [{ component: 'span', props: { innerText: 'cccc' } }]
+  configs.fields[1].children.push({ component: 'span', props: { innerText: 'cccc' } }) // = [{ component: 'span', props: { innerText: 'cccc' } }]
 }
 
 onMounted(async () => {

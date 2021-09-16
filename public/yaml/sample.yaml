@@ -72,5 +72,9 @@ fields:
           condition: $:!model.checked
           label: selection
         model: model.selection
-
+        # children:
+        #   - component: el-option
+        #     props:
+        #       label: aaa
+        #       value: 1
         options: $:model.checks

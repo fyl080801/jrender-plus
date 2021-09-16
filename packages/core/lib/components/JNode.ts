@@ -1,4 +1,4 @@
-import { defineComponent, ref, watch, h, resolveDynamicComponent } from 'vue'
+import { defineComponent, ref, watch, h, resolveDynamicComponent, nextTick } from 'vue'
 import { assignObject, deepClone, isFunction } from '../utils/helper'
 import { useJRender } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
@@ -19,6 +19,8 @@ const JNode = defineComponent({
       proxy,
     })
 
+    const cacheField = ref(props.field)
+
     const renderField = ref()
 
     const renderChildren = ref()
@@ -26,8 +28,39 @@ const JNode = defineComponent({
     watch(
       () => props.field,
       (value) => {
+        cacheField.value = value
+      },
+    )
+
+    watch(
+      () => cacheField.value,
+      (value) => {
         pipeline(...mergedServices.beforeRenderHandlers, (field, next) => {
           renderField.value = injector(field)
+
+          const slotGroups = renderField.value?.children?.reduce((target, child) => {
+            const slotName = child.slot || 'default'
+            target[slotName] ||= []
+
+            if (child.component === 'slot') {
+              const slot = slots[child.name || 'default']
+              if (isFunction(slot)) {
+                slot(assignObject(child.props, props.scope)).forEach((node) => {
+                  target[slotName].push(node)
+                })
+              }
+            } else {
+              target[slotName].push(h(JNode, { field: child, scope: props.scope }))
+            }
+
+            return target
+          }, {})
+
+          renderChildren.value = Object.keys(slotGroups || {}).reduce((target, key) => {
+            target[key] = () => slotGroups[key]
+            return target
+          }, {})
+
           next(renderField.value)
         })(assignObject(value))
       },
@@ -35,32 +68,29 @@ const JNode = defineComponent({
     )
 
     watch(
-      () => renderField.value?.children,
+      () => props.field?.children,
       () => {
-        const slotGroups = renderField.value?.children?.reduce((target, child) => {
-          const slotName = child.slot || 'default'
-          target[slotName] ||= []
+        const cache = cacheField.value
 
-          if (child.component === 'slot') {
-            const slot = slots[child.name || 'default']
-            if (isFunction(slot)) {
-              slot(assignObject(child.props, props.scope)).forEach((node) => {
-                target[slotName].push(node)
-              })
-            }
-          } else {
-            target[slotName].push(h(JNode, { field: child, scope: props.scope }))
-          }
+        cacheField.value = null
 
-          return target
-        }, {})
-
-        renderChildren.value = Object.keys(slotGroups || {}).reduce((target, key) => {
-          target[key] = () => slotGroups[key]
-          return target
-        }, {})
+        nextTick(() => {
+          cacheField.value = cache
+        })
       },
-      { immediate: true },
+    )
+
+    watch(
+      () => props.field?.children?.length,
+      () => {
+        const cache = cacheField.value
+
+        cacheField.value = null
+
+        nextTick(() => {
+          cacheField.value = cache
+        })
+      },
     )
 
     return () => {
@@ -75,6 +105,7 @@ const JNode = defineComponent({
         ...(renderField.value || {}),
         component: renderComponent,
         props: deepClone(renderField.value?.props || {}),
+        children: undefined,
       }
 
       for (let i = 0; i < mergedServices.renderHandlers.length; i++) {

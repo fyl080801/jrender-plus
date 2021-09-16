@@ -25,3 +25,7 @@ fields:
         props:
           label: name
           prop: name
+      - component: el-table-column
+        props:
+          label: remark
+          prop: remark

@@ -10,7 +10,9 @@ export const pipeline = (...funcs) => {
 
       const currentFn = i >= funcs.length ? null : funcs[i]
 
-      if (!currentFn) return Promise.resolve()
+      if (!currentFn) {
+        return Promise.resolve()
+      }
 
       return Promise.resolve(currentFn(currentScope, next))
     }
