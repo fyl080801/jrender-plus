@@ -130,6 +130,7 @@ fields:
               innerText: title
           - component: el-option
             for: $:model.checks
+            vfor: (item, index) in model.checks # 这个如何实现？
             props:
               label: $:`选项${model.checks[scope.$index]}`
-              value: $:scope
+              value: $:model.checks[scope.$index]
