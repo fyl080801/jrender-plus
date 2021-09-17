@@ -5,6 +5,7 @@ import { deepGet } from '@jrender-plus/core'
 export const useRender = (app: App) => {
   app.use(JRender)
 
+  // 全局 render
   useGlobalRender(({ onBeforeRender, onRender, addFunction, addDataSource }) => {
     onBeforeRender(() => (field, next) => {
       if (typeof field.value === 'string') {
@@ -106,6 +107,7 @@ export const useRender = (app: App) => {
               watch(
                 () => deepGet(context, source),
                 () => {
+                  // 调 next 是为了重新输出组件定义达到重新渲染
                   next(assignObject(cached, { for: undefined, children: resolveChildren() }))
                 },
               ),
