@@ -24,34 +24,38 @@ const JNode = defineComponent({
 
     const proxy = mergedServices.proxy.map((p) => p({ functional: mergedServices.functional }))
 
-    const field = ref()
+    const mergedContext = assignObject(context, { scope: props.scope })
+
+    const injector = injectProxy({
+      context: mergedContext,
+      proxy,
+    })
+
+    // const field = ref()
 
     const renderField = ref()
 
     const renderChildren = ref()
 
-    const forWatch = []
+    // const forWatch = []
 
-    const forceUpdate = () => {
-      const cache = field.value
+    // const forceUpdate = () => {
+    //   const cache = field.value
 
-      field.value = null
+    //   field.value = null
 
-      nextTick(() => {
-        field.value = cache
-      })
-    }
+    //   nextTick(() => {
+    //     field.value = cache
+    //   })
+    // }
 
-    const clearWatch = () => {
-      forWatch.forEach((watcher) => watcher())
-      forWatch.length = 0
-    }
+    // const clearWatch = () => {
+    //   forWatch.forEach((watcher) => watcher())
+    //   forWatch.length = 0
+    // }
 
-    const onBeforeRenderHook = (field, next) => {
-      renderField.value = injectProxy({
-        context: assignObject({}, context, { scope: props.scope }),
-        proxy,
-      })(field)
+    const onBeforeRenderHook = () => (field, next) => {
+      renderField.value = injector(getProxyDefine(field))
 
       const slotGroups = renderField.value?.children?.reduce((target, child) => {
         const slotName = child?.slot || 'default'
@@ -67,33 +71,38 @@ const JNode = defineComponent({
             })
           }
         } else {
-          if (isArray(child?.for)) {
-            forWatch.push(
-              watch(
-                () => child.for,
-                () => {
-                  forceUpdate()
-                },
-              ),
-            )
+          target[slotName].push(
+            isVNode(child) || !isObject(child)
+              ? child
+              : h(JNode, { field: child, scope: props.scope }),
+          )
+          // if (isArray(child?.for)) {
+          //   forWatch.push(
+          //     watch(
+          //       () => child.for,
+          //       () => {
+          //         forceUpdate()
+          //       },
+          //     ),
+          //   )
 
-            child.for.forEach((data, i) => {
-              target[slotName].push(
-                h(JNode, {
-                  field: child,
-                  scope: isObject(data)
-                    ? assignObject(props.scope, data, { $index: i })
-                    : assignObject(props.scope, { $index: i }),
-                }),
-              )
-            })
-          } else {
-            target[slotName].push(
-              isVNode(child) || !isObject(child)
-                ? child
-                : h(JNode, { field: child, scope: props.scope }),
-            )
-          }
+          //   child.for.forEach((data, i) => {
+          //     target[slotName].push(
+          //       h(JNode, {
+          //         field: child,
+          //         scope: isObject(data)
+          //           ? assignObject(props.scope, data, { $index: i })
+          //           : assignObject(props.scope, { $index: i }),
+          //       }),
+          //     )
+          //   })
+          // } else {
+          //   target[slotName].push(
+          //     isVNode(child) || !isObject(child)
+          //       ? child
+          //       : h(JNode, { field: child, scope: props.scope }),
+          //   )
+          // }
         }
 
         return target
@@ -107,25 +116,29 @@ const JNode = defineComponent({
       next(renderField.value)
     }
 
+    const beforeRenders = [...mergedServices.beforeRenderHandlers, onBeforeRenderHook].map(
+      (provider) => provider({ context: mergedContext }),
+    )
+
+    // watch(
+    //   () => props.field,
+    //   (value) => {
+    //     field.value = value
+    //   },
+    //   { immediate: true },
+    // )
+
     watch(
       () => props.field,
       (value) => {
-        field.value = value
-      },
-      { immediate: true },
-    )
-
-    watch(
-      () => field.value,
-      (value) => {
-        clearWatch()
+        // clearWatch()
 
         if (!value) {
           renderField.value = null
           return
         }
 
-        pipeline(...mergedServices.beforeRenderHandlers, onBeforeRenderHook)(assignObject(value))
+        pipeline(...beforeRenders)(assignObject(value))
       },
       { immediate: true },
     )
@@ -134,20 +147,24 @@ const JNode = defineComponent({
     watch(
       () => props.field?.children,
       () => {
-        forceUpdate()
+        // forceUpdate()
+
+        pipeline(...beforeRenders)(assignObject(props.field))
       },
     )
 
     watch(
       () => props.field?.children?.length,
       () => {
-        forceUpdate()
+        // forceUpdate()
+
+        pipeline(...beforeRenders)(assignObject(props.field))
       },
     )
 
-    onBeforeUnmount(() => {
-      clearWatch()
-    })
+    // onBeforeUnmount(() => {
+    //   clearWatch()
+    // })
 
     return () => {
       if (!renderField.value) {
@@ -158,12 +175,7 @@ const JNode = defineComponent({
         toRaw(mergedServices.components[renderField.value?.component]) ||
         renderField.value?.component
 
-      const rendingProps = deepClone(
-        injectProxy({
-          context: assignObject({}, context, { scope: props.scope }),
-          proxy,
-        })(getProxyDefine(renderField.value?.props || {})),
-      )
+      const rendingProps = deepClone(injector(getProxyDefine(renderField.value?.props || {})))
 
       let rending = {
         ...(renderField.value || {}),

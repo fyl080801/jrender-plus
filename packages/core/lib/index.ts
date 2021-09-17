@@ -1,4 +1,4 @@
-import { JRender } from './components'
+import { JRender, JNode } from './components'
 import { Plugin } from 'vue'
 
 const plugin: Plugin = {
@@ -8,7 +8,7 @@ const plugin: Plugin = {
   ...JRender,
 }
 
-export { JRender }
+export { JRender, JNode }
 export { useRootRender } from './utils/mixins'
 export { useGlobalRender } from './utils/service'
 export * from './utils/helper'

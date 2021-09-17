@@ -1,12 +1,12 @@
-import { App, nextTick, reactive, watch } from 'vue'
-import JRender, { useGlobalRender } from '@jrender-plus/core'
-import { deepClone } from '@jrender-plus/core'
+import { App, nextTick, reactive, watch, h } from 'vue'
+import JRender, { useGlobalRender, JNode, assignObject } from '@jrender-plus/core'
+import { deepClone, deepGet } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
   app.use(JRender)
 
   useGlobalRender(({ onBeforeRender, onRender, addFunction, addDataSource }) => {
-    onBeforeRender((field, next) => {
+    onBeforeRender(() => (field, next) => {
       if (typeof field.value === 'string') {
         const paths = field.value.split('.')
         const path = [...paths].splice(1, paths.length)
@@ -20,7 +20,7 @@ export const useRender = (app: App) => {
       next(field)
     })
 
-    onBeforeRender((field, next) => {
+    onBeforeRender(() => (field, next) => {
       if (typeof field.model === 'string') {
         const paths = field.model.split('.')
         const path = [...paths].splice(1, paths.length)
@@ -32,6 +32,28 @@ export const useRender = (app: App) => {
         delete field.model
       }
       next(field)
+    })
+
+    onBeforeRender(() => (field, next) => {
+      if (typeof field.models === 'string') {
+        const paths = field.models.split('.')
+        const path = [...paths].splice(1, paths.length)
+
+        field.props ||= {}
+        field.props.modelValue = `$:GET(model, '${path.join('.')}', [])`
+        field.props['onUpdate:modelValue'] = `$:(e) => SET(${paths[0]}, '${path.join('.')}', e)`
+
+        delete field.models
+      }
+      next(field)
+    })
+
+    onBeforeRender(({ context }) => {
+      const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
+
+      return (field, next) => {
+        next(field)
+      }
     })
 
     onRender((field) => {

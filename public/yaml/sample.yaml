@@ -82,7 +82,7 @@ fields:
         model: model.sel
         children:
           - component: el-radio
-            for: $:tabledata.data
+            # for: $:tabledata.data
             props:
               label: $:scope.name
             children:
@@ -102,18 +102,16 @@ fields:
       - component: el-checkbox-group
         formItem:
           label: select
-        props:
-          modelValue: $:GET(model, 'checks', [])
-          onUpdate:modelValue: $:(e) => SET(model, 'checks', e)
+        models: model.checks
         children:
           - component: el-checkbox
-            for: $:rawdata
+            for: (item, index) in rawdata
             props:
-              label: $:scope.value
+              label: $:scope.item.value
             children:
               - component: span
                 props:
-                  innerText: $:scope.name
+                  innerText: $:scope.item.name
 
       - component: el-select
         formItem:
@@ -121,16 +119,15 @@ fields:
           label: selection
         model: model.selection
         children:
-          - component: p
-            slot: empty
-            props:
-              innerText: this is empty
-          - component: p
-            props:
-              innerText: title
+          # - component: p
+          #   slot: empty
+          #   props:
+          #     innerText: this is empty
+          # - component: p
+          #   props:
+          #     innerText: title
           - component: el-option
-            for: $:model.checks
-            vfor: (item, index) in model.checks # 这个如何实现？
+            for: (item, index) in model.checks # 这个如何实现？
             props:
-              label: $:`选项${model.checks[scope.$index]}`
-              value: $:model.checks[scope.$index]
+              label: aaa # $:`选项${model.checks[scope.$index]}`
+              value: aaa # $:model.checks[scope.$index]

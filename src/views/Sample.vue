@@ -11,7 +11,7 @@ const configs = reactive({
 
 const onSetup = ({ onBeforeRender }) => {
   // 外套表单项
-  onBeforeRender((field, next) => {
+  onBeforeRender(() => (field, next) => {
     if (!field.formItem) {
       return next(field)
     }
@@ -24,7 +24,7 @@ const onSetup = ({ onBeforeRender }) => {
   })
 
   // 渲染控制
-  onBeforeRender((field, next) => {
+  onBeforeRender(() => (field, next) => {
     if (field.rel !== true) {
       return next(field)
     }
@@ -45,9 +45,9 @@ const onSetup = ({ onBeforeRender }) => {
   })
 }
 
-// const onUpdate = () => {
-//   configs.fields[1].children.push({ component: 'span', props: { innerText: 'cccc' } }) // = [{ component: 'span', props: { innerText: 'cccc' } }]
-// }
+const onUpdate = () => {
+  configs.fields[0].children.push({ component: 'span', props: { innerText: 'cccc' } }) // = [{ component: 'span', props: { innerText: 'cccc' } }]
+}
 
 onMounted(async () => {
   const { fields, listeners, datasource }: any = await fetchYaml('/yaml/sample.yaml')
@@ -72,6 +72,6 @@ onMounted(async () => {
       <h2>subtitle</h2>
     </JRender>
     <p>{{ JSON.stringify(configs.model) }}</p>
-    <!-- <button @click="onUpdate">change</button> -->
+    <button @click="onUpdate">change</button>
   </div>
 </template>
