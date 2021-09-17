@@ -1,12 +1,5 @@
 ---
 datasource:
-  rawdata:
-    props:
-      data:
-        - name: sel1
-          value: 1
-        - name: sel2
-          value: 2
   tabledata:
     type: fetch
     props:
@@ -17,6 +10,18 @@ datasource:
         method: GET
 
 fields:
+  - component: div
+    children:
+      - component: el-button
+        props:
+          innerText: reload
+          onClick: |
+            $:() => {
+              tabledata.clear()
+              setTimeout(() => {
+                tabledata.fetch()
+              }, 1000)
+            }
   - component: el-table
     props:
       data: $:tabledata.data

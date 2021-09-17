@@ -6,6 +6,7 @@ import {
   resolveDynamicComponent,
   nextTick,
   onBeforeUnmount,
+  toRaw,
 } from 'vue'
 import { assignObject, deepClone, isFunction, isObject, isArray } from '../utils/helper'
 import { useJRender } from '../utils/mixins'
@@ -22,18 +23,13 @@ const JNode = defineComponent({
 
     const proxy = mergedServices.proxy.map((p) => p({ functional: mergedServices.functional }))
 
-    const injector = injectProxy({
-      context: assignObject({}, context, { scope: props.scope }),
-      proxy,
-    })
-
     const field = ref()
 
     const renderField = ref()
 
     const renderChildren = ref()
 
-    const watchList = []
+    const forWatch = []
 
     const forceUpdate = () => {
       const cache = field.value
@@ -46,8 +42,8 @@ const JNode = defineComponent({
     }
 
     const clearWatch = () => {
-      watchList.forEach((watcher) => watcher())
-      watchList.length = 0
+      forWatch.forEach((watcher) => watcher())
+      forWatch.length = 0
     }
 
     watch(
@@ -69,7 +65,10 @@ const JNode = defineComponent({
         }
 
         pipeline(...mergedServices.beforeRenderHandlers, (field, next) => {
-          renderField.value = injector(field)
+          renderField.value = injectProxy({
+            context: assignObject({}, context, { scope: props.scope }),
+            proxy,
+          })(field)
 
           const slotGroups = renderField.value?.children?.reduce((target, child) => {
             const slotName = child?.slot || 'default'
@@ -86,7 +85,7 @@ const JNode = defineComponent({
               }
             } else {
               if (isArray(child?.for)) {
-                watchList.push(
+                forWatch.push(
                   watch(
                     () => child.for,
                     () => {
@@ -148,18 +147,22 @@ const JNode = defineComponent({
         return
       }
 
-      const injector = injectProxy({
-        context: assignObject({}, context, { scope: props.scope }),
-        proxy,
-      })
+      const renderingComponent =
+        toRaw(mergedServices.components[renderField.value?.component]) ||
+        renderField.value?.component
 
-      const renderComponent =
-        mergedServices.components[renderField.value?.component] || renderField.value?.component
+      const rendingProps = deepClone(
+        injectProxy({
+          context: assignObject({}, context, { scope: props.scope }),
+          proxy,
+        })(getProxyDefine(renderField.value?.props || {})),
+      )
 
       let rending = {
         ...(renderField.value || {}),
-        component: renderComponent,
-        props: deepClone(injector(getProxyDefine(renderField.value?.props || {}))),
+        component: renderingComponent,
+        props: rendingProps,
+        // 渲染中不能操作children
         children: undefined,
       }
 

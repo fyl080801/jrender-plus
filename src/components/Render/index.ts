@@ -60,6 +60,9 @@ export const useRender = (app: App) => {
             instance.loading = false
           }
         },
+        clear: () => {
+          instance.data = opt()?.defaultData || []
+        },
         loading: false,
         data: opt()?.defaultData || [],
       })
