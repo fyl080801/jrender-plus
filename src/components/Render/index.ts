@@ -1,5 +1,6 @@
-import { App, nextTick, reactive } from 'vue'
+import { App, nextTick, reactive, watch } from 'vue'
 import JRender, { useGlobalRender } from '@jrender-plus/core'
+import { deepClone } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
   app.use(JRender)

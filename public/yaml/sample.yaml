@@ -131,5 +131,5 @@ fields:
           - component: el-option
             for: $:model.checks
             props:
-              label: $:`选项${scope}`
+              label: $:`选项${model.checks[scope.$index]}`
               value: $:scope

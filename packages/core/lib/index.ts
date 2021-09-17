@@ -11,5 +11,6 @@ const plugin: Plugin = {
 export { JRender }
 export { useRootRender } from './utils/mixins'
 export { useGlobalRender } from './utils/service'
+export * from './utils/helper'
 
 export default plugin

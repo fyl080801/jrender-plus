@@ -7,6 +7,7 @@ import {
   nextTick,
   onBeforeUnmount,
   toRaw,
+  isVNode,
 } from 'vue'
 import { assignObject, deepClone, isFunction, isObject, isArray } from '../utils/helper'
 import { useJRender } from '../utils/mixins'
@@ -46,6 +47,66 @@ const JNode = defineComponent({
       forWatch.length = 0
     }
 
+    const onBeforeRenderHook = (field, next) => {
+      renderField.value = injectProxy({
+        context: assignObject({}, context, { scope: props.scope }),
+        proxy,
+      })(field)
+
+      const slotGroups = renderField.value?.children?.reduce((target, child) => {
+        const slotName = child?.slot || 'default'
+        target[slotName] ||= []
+
+        if (child?.component === 'slot') {
+          const slot = slots[child.name || 'default']
+          if (isFunction(slot)) {
+            slot(
+              isObject(props.scope) ? assignObject(child.props, props.scope) : props.scope,
+            ).forEach((node) => {
+              target[slotName].push(node)
+            })
+          }
+        } else {
+          if (isArray(child?.for)) {
+            forWatch.push(
+              watch(
+                () => child.for,
+                () => {
+                  forceUpdate()
+                },
+              ),
+            )
+
+            child.for.forEach((data, i) => {
+              target[slotName].push(
+                h(JNode, {
+                  field: child,
+                  scope: isObject(data)
+                    ? assignObject(props.scope, data, { $index: i })
+                    : assignObject(props.scope, { $index: i }),
+                }),
+              )
+            })
+          } else {
+            target[slotName].push(
+              isVNode(child) || !isObject(child)
+                ? child
+                : h(JNode, { field: child, scope: props.scope }),
+            )
+          }
+        }
+
+        return target
+      }, {})
+
+      renderChildren.value = Object.keys(slotGroups || {}).reduce((target, key) => {
+        target[key] = () => slotGroups[key]
+        return target
+      }, {})
+
+      next(renderField.value)
+    }
+
     watch(
       () => props.field,
       (value) => {
@@ -64,61 +125,7 @@ const JNode = defineComponent({
           return
         }
 
-        pipeline(...mergedServices.beforeRenderHandlers, (field, next) => {
-          renderField.value = injectProxy({
-            context: assignObject({}, context, { scope: props.scope }),
-            proxy,
-          })(field)
-
-          const slotGroups = renderField.value?.children?.reduce((target, child) => {
-            const slotName = child?.slot || 'default'
-            target[slotName] ||= []
-
-            if (child?.component === 'slot') {
-              const slot = slots[child.name || 'default']
-              if (isFunction(slot)) {
-                slot(
-                  isObject(props.scope) ? assignObject(child.props, props.scope) : props.scope,
-                ).forEach((node) => {
-                  target[slotName].push(node)
-                })
-              }
-            } else {
-              if (isArray(child?.for)) {
-                forWatch.push(
-                  watch(
-                    () => child.for,
-                    () => {
-                      forceUpdate()
-                    },
-                  ),
-                )
-
-                child.for.forEach((data) => {
-                  target[slotName].push(
-                    h(JNode, {
-                      field: child,
-                      scope: isObject(data) ? assignObject(props.scope, data) : data,
-                    }),
-                  )
-                })
-              } else {
-                target[slotName].push(
-                  isObject(child) ? h(JNode, { field: child, scope: props.scope }) : child,
-                )
-              }
-            }
-
-            return target
-          }, {})
-
-          renderChildren.value = Object.keys(slotGroups || {}).reduce((target, key) => {
-            target[key] = () => slotGroups[key]
-            return target
-          }, {})
-
-          next(renderField.value)
-        })(assignObject(value))
+        pipeline(...mergedServices.beforeRenderHandlers, onBeforeRenderHook)(assignObject(value))
       },
       { immediate: true },
     )
