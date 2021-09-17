@@ -82,13 +82,13 @@ fields:
         model: model.sel
         children:
           - component: el-radio
-            # for: $:tabledata.data
+            for: (item, index) in tabledata.data
             props:
-              label: $:scope.name
+              label: $:scope.item.name
             children:
               - component: span
                 props:
-                  innerText: $:scope.remark
+                  innerText: $:scope.item.remark
 
       - component: el-checkbox
         formItem:
@@ -119,15 +119,15 @@ fields:
           label: selection
         model: model.selection
         children:
-          # - component: p
-          #   slot: empty
-          #   props:
-          #     innerText: this is empty
-          # - component: p
-          #   props:
-          #     innerText: title
+          - component: p
+            slot: empty
+            props:
+              innerText: this is empty
+          - component: p
+            props:
+              innerText: title
           - component: el-option
             for: (item, index) in model.checks # 这个如何实现？
             props:
-              label: aaa # $:`选项${model.checks[scope.$index]}`
-              value: aaa # $:model.checks[scope.$index]
+              label: $:`选项${scope.item}`
+              value: $:scope.item

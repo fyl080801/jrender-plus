@@ -1,6 +1,6 @@
-import { App, nextTick, reactive, watch, h } from 'vue'
+import { App, nextTick, reactive, watch, h, onBeforeUnmount } from 'vue'
 import JRender, { useGlobalRender, JNode, assignObject } from '@jrender-plus/core'
-import { deepClone, deepGet } from '@jrender-plus/core'
+import { deepGet } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
   app.use(JRender)
@@ -48,11 +48,72 @@ export const useRender = (app: App) => {
       next(field)
     })
 
+    // for 表达式，还不知道怎么具体实现vue的for
     onBeforeRender(({ context }) => {
       const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
+      let cached = null
+      const watchList = []
+
+      onBeforeUnmount(() => {
+        watchList.forEach((w) => w())
+        watchList.length = 0
+      })
+
+      const resolveChildren = () => {
+        const children = []
+
+        cached?.children?.forEach((child) => {
+          if (child.for === undefined || !forAliasRE.test(child.for)) {
+            children.push(child)
+          } else {
+            // 怎么实现？
+            const [origin, obj, source] = forAliasRE.exec(child.for)
+            const data = deepGet(context, source)
+
+            data.forEach((item) => {
+              children.push(assignObject(child, { for: undefined, $scope: { item } }))
+            })
+          }
+        })
+
+        return children
+      }
 
       return (field, next) => {
-        next(field)
+        watchList.forEach((w) => w())
+        watchList.length = 0
+
+        if (!field.children || !field.children.find((child) => child.for !== undefined)) {
+          return next(field)
+        }
+
+        cached = assignObject(field)
+
+        const children = []
+
+        field.children.forEach((child) => {
+          if (child.for === undefined || !forAliasRE.test(child.for)) {
+            children.push(child)
+          } else {
+            const [origin, obj, source] = forAliasRE.exec(child.for)
+            const data = deepGet(context, source)
+            data.forEach((item) => {
+              children.push(
+                h(JNode, { field: child, scope: assignObject(context.scope, { item }) }),
+              )
+            })
+            watchList.push(
+              watch(
+                () => deepGet(context, source),
+                () => {
+                  next(assignObject(cached, { for: undefined, children: resolveChildren() }))
+                },
+              ),
+            )
+          }
+        })
+
+        next(assignObject(field, { for: undefined, children }))
       }
     })
 

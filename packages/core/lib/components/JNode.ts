@@ -31,28 +31,9 @@ const JNode = defineComponent({
       proxy,
     })
 
-    // const field = ref()
-
     const renderField = ref()
 
     const renderChildren = ref()
-
-    // const forWatch = []
-
-    // const forceUpdate = () => {
-    //   const cache = field.value
-
-    //   field.value = null
-
-    //   nextTick(() => {
-    //     field.value = cache
-    //   })
-    // }
-
-    // const clearWatch = () => {
-    //   forWatch.forEach((watcher) => watcher())
-    //   forWatch.length = 0
-    // }
 
     const onBeforeRenderHook = () => (field, next) => {
       renderField.value = injector(getProxyDefine(field))
@@ -72,37 +53,12 @@ const JNode = defineComponent({
           }
         } else {
           target[slotName].push(
-            isVNode(child) || !isObject(child)
+            isVNode(child)
               ? child
-              : h(JNode, { field: child, scope: props.scope }),
+              : isObject(child)
+              ? h(JNode, { field: child, scope: assignObject(props.scope, child.$scope || {}) })
+              : child,
           )
-          // if (isArray(child?.for)) {
-          //   forWatch.push(
-          //     watch(
-          //       () => child.for,
-          //       () => {
-          //         forceUpdate()
-          //       },
-          //     ),
-          //   )
-
-          //   child.for.forEach((data, i) => {
-          //     target[slotName].push(
-          //       h(JNode, {
-          //         field: child,
-          //         scope: isObject(data)
-          //           ? assignObject(props.scope, data, { $index: i })
-          //           : assignObject(props.scope, { $index: i }),
-          //       }),
-          //     )
-          //   })
-          // } else {
-          //   target[slotName].push(
-          //     isVNode(child) || !isObject(child)
-          //       ? child
-          //       : h(JNode, { field: child, scope: props.scope }),
-          //   )
-          // }
         }
 
         return target
@@ -120,19 +76,9 @@ const JNode = defineComponent({
       (provider) => provider({ context: mergedContext }),
     )
 
-    // watch(
-    //   () => props.field,
-    //   (value) => {
-    //     field.value = value
-    //   },
-    //   { immediate: true },
-    // )
-
     watch(
       () => props.field,
       (value) => {
-        // clearWatch()
-
         if (!value) {
           renderField.value = null
           return
@@ -147,8 +93,6 @@ const JNode = defineComponent({
     watch(
       () => props.field?.children,
       () => {
-        // forceUpdate()
-
         pipeline(...beforeRenders)(assignObject(props.field))
       },
     )
@@ -156,15 +100,9 @@ const JNode = defineComponent({
     watch(
       () => props.field?.children?.length,
       () => {
-        // forceUpdate()
-
         pipeline(...beforeRenders)(assignObject(props.field))
       },
     )
-
-    // onBeforeUnmount(() => {
-    //   clearWatch()
-    // })
 
     return () => {
       if (!renderField.value) {
