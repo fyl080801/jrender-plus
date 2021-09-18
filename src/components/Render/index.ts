@@ -1,6 +1,6 @@
-import { App, nextTick, reactive, watch, h, onBeforeUnmount } from 'vue'
-import JRender, { useGlobalRender, JNode, assignObject } from '@jrender-plus/core'
-import { deepGet, renderNode } from '@jrender-plus/core'
+import { App, nextTick, reactive, watch, onBeforeUnmount, effectScope } from 'vue'
+import JRender, { useGlobalRender, assignObject } from '@jrender-plus/core'
+import { deepGet } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
   app.use(JRender)
@@ -9,6 +9,7 @@ export const useRender = (app: App) => {
   useGlobalRender(({ onBeforeRender, onRender, addFunction, addDataSource }) => {
     const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
+    // value
     onBeforeRender(() => (field, next) => {
       if (typeof field.value === 'string') {
         const paths = field.value.split('.')
@@ -23,6 +24,7 @@ export const useRender = (app: App) => {
       next(field)
     })
 
+    // model
     onBeforeRender(() => (field, next) => {
       if (typeof field.model === 'string') {
         const paths = field.model.split('.')
@@ -37,6 +39,7 @@ export const useRender = (app: App) => {
       next(field)
     })
 
+    // models
     onBeforeRender(() => (field, next) => {
       if (typeof field.models === 'string') {
         const paths = field.models.split('.')
@@ -51,60 +54,60 @@ export const useRender = (app: App) => {
       next(field)
     })
 
-    // // for 表达式，还不知道怎么具体实现vue的for
+    // for 表达式，还不知道怎么具体实现vue的for
     onBeforeRender(({ context }) => {
-      let cached = null
-      const watchList = []
+      let eff = null
 
       onBeforeUnmount(() => {
-        watchList.forEach((w) => w())
-        watchList.length = 0
+        eff?.stop()
       })
 
       return (field, next) => {
-        cached = assignObject(field)
-
-        field?.children?.forEach((child) => {
-          const matched = forAliasRE.exec(child.for)
-          if (matched) {
-            const [origin, props, source] = matched
-            watchList.push(
+        eff = effectScope()
+        eff.run(() => {
+          field?.children?.forEach((child) => {
+            const matched = forAliasRE.exec(child.for)
+            if (matched) {
+              const [origin, props, source] = matched
               watch(
                 () => deepGet(context, source),
                 () => {
                   next({})
                   nextTick(() => {
-                    next(assignObject(cached))
+                    next(assignObject(field))
                   })
                 },
                 { deep: true },
-              ),
-            )
-          }
+              )
+            }
+          })
         })
 
-        next(field)
+        next(assignObject(field))
       }
     })
 
-    onRender(({ context }) => (field) => {
-      field.children = field.children?.reduce((target, child) => {
-        const matched = forAliasRE.exec(child.for)
-        if (child.for === undefined || !matched) {
-          target.push(child)
-        } else {
-          const [origin, props, source] = matched
-          deepGet(context, source).forEach((item) => {
-            target.push(
-              renderNode(assignObject(child, { for: undefined }), {
-                [props]: item,
-              }),
-            )
-          })
-        }
-        return target
-      }, [])
-      return field
+    onRender(({ context, renderNode }) => {
+      return (field) => {
+        field.children = field.children?.reduce((target, child) => {
+          const matched = forAliasRE.exec(child.for)
+          if (child.for === undefined || !matched) {
+            target.push(child)
+          } else {
+            const [origin, props, source] = matched
+            deepGet(context, source).forEach((item) => {
+              target.push(
+                renderNode(assignObject(child, { for: undefined }), {
+                  [props]: item,
+                }),
+              )
+            })
+          }
+          return target
+        }, [])
+
+        return field
+      }
     })
 
     onRender(() => (field) => {

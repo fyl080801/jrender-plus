@@ -58,7 +58,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div key="xxx">
     <JRender
       v-model="configs.model"
       :fields="configs.fields"
@@ -73,5 +73,9 @@ onMounted(async () => {
     </JRender>
     <p>{{ JSON.stringify(configs.model) }}</p>
     <button @click="onUpdate">change</button>
+
+    <!-- <ul>
+      <li v-for="item in configs.model['checks']">{{ item }}</li>
+    </ul> -->
   </div>
 </template>

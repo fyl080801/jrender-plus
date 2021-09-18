@@ -48,6 +48,7 @@ export default defineComponent({
       slots,
       // fields: props.fields,
       mergedServices,
+      props,
     })
 
     useScope({})
@@ -57,7 +58,6 @@ export default defineComponent({
       (value) => {
         emit('update:modelValue', value)
       },
-      {},
     )
 
     const injector = injectProxy({
@@ -119,7 +119,7 @@ export default defineComponent({
           const watcher = isFunction(injected.watch)
             ? injected.watch
             : isArray(injected.watch)
-            ? injected.watch.map((sw) => (isFunction(sw) ? sw : () => sw))
+            ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
             : () => injected.watch
 
           watchList.push(

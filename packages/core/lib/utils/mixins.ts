@@ -8,13 +8,13 @@ const setupToken = Symbol('setupToken')
 
 const scopeParentToken = Symbol('scopeParentToken')
 
-export const useJRender = (props?) => {
-  if (props) {
-    const { context, slots, mergedServices } = props
+export const useJRender = (options?) => {
+  if (options) {
+    const { context, slots, mergedServices, props } = options
 
     provide(serviceToken, { context, slots, mergedServices })
 
-    return props
+    return options
   } else {
     return inject(serviceToken)
   }

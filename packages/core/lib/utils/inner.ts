@@ -46,6 +46,7 @@ export const GET = (target, path, def) => {
   return origin !== undefined ? origin : def
 }
 
+// 只读改了也不响应
 export const rawData = (options) => {
   const data = options()?.data
   return data !== undefined && data !== null ? data : {}

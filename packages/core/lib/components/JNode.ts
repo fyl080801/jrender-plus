@@ -1,4 +1,13 @@
-import { defineComponent, ref, watch, h, resolveDynamicComponent, toRaw, isVNode } from 'vue'
+import {
+  defineComponent,
+  ref,
+  watch,
+  h,
+  resolveDynamicComponent,
+  toRaw,
+  isVNode,
+  effectScope,
+} from 'vue'
 import { assignObject, deepClone, isFunction, isObject, isArray } from '../utils/helper'
 import { useJRender, useScope } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
@@ -18,6 +27,8 @@ const JNode = defineComponent({
 
     const mergedContext = assignObject(context, { scope })
 
+    const services = { context: mergedContext, renderNode }
+
     const injector = injectProxy({
       context: mergedContext,
       proxy,
@@ -31,13 +42,17 @@ const JNode = defineComponent({
         renderField.value = injector(getProxyDefine(field))
         next(renderField.value)
       },
-    ].map((provider) => provider({ context: mergedContext }))
+    ].map((provider) => provider(services))
 
     const renders = [
       ...mergedServices.renderHandlers,
       () => (field) => {
+        if (!field) {
+          return field
+        }
+
         field.children = Object.entries(
-          field?.children?.reduce((target, child) => {
+          field.children?.reduce((target, child) => {
             const slotName = child?.slot || 'default'
             target[slotName] ||= []
 
@@ -63,7 +78,7 @@ const JNode = defineComponent({
 
         return field
       },
-    ].map((provider) => provider({ context: mergedContext }))
+    ].map((provider) => provider(services))
 
     // 如果children发生变化就重新渲染本节点和以下节点
     watch(

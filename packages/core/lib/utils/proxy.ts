@@ -36,7 +36,7 @@ export const injectProxy = (services) => {
           return input
         }
 
-        const value = Reflect.get(toRaw(target), p, receiver)
+        const value = toRaw(Reflect.get(toRaw(target), p, receiver))
 
         for (const f of handlers) {
           const handler = f(value)
@@ -46,7 +46,7 @@ export const injectProxy = (services) => {
           }
         }
 
-        return (!isDom(value) && inject(getProxyDefine(value))) || value
+        return (isDom(value) && value) || inject(getProxyDefine(value))
       },
     })
   }

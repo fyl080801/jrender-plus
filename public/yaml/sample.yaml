@@ -17,7 +17,8 @@ datasource:
         method: GET
 
 listeners:
-  - watch: $:model.text
+  - watch:
+      - $:model.text
     actions:
       - handler: $:() => console.log('xxx')
       - handler: $:() => tabledata.fetch()
@@ -50,6 +51,8 @@ fields:
 
       - component: input
         value: rawdata[0].name
+      - component: input
+        value: tabledata.data[0].remark
 
   - component: el-button
     props:
@@ -60,6 +63,11 @@ fields:
     props:
       onClick: $:() => tabledata.data = []
       innerText: 清除数据
+
+  - component: el-button
+    props:
+      onClick: $:() => rawdata.push({name:'xxx', value:99})
+      innerText: 添加项
 
   - component: el-form
     props:
@@ -78,6 +86,21 @@ fields:
             slot: append
             props:
               innerText: aaa
+
+      - component: el-input
+        for: item in rawdata
+        formItem:
+          label: ssss
+        model: model.obj.text
+        props:
+          style:
+            width: auto
+        children:
+          - component: el-button
+            slot: append
+            props:
+              innerText: 删除
+              onClick: $:() => rawdata.splice(rawdata.length-1, 1)
 
       - component: el-radio-group
         formItem:
@@ -116,6 +139,15 @@ fields:
               - component: span
                 props:
                   innerText: $:scope.item.name
+          - component: el-checkbox
+            for: item in tabledata.data
+            props:
+              key: $:scope.item.value
+              label: $:scope.item.name
+            children:
+              - component: span
+                props:
+                  innerText: $:`选项${scope.item.remark}`
 
       - component: el-select
         formItem:
@@ -136,3 +168,9 @@ fields:
               key: $:scope.item
               label: $:`选项${scope.item}`
               value: $:scope.item
+          - component: el-option
+            for: item in tabledata.data
+            props:
+              key: $:scope.item.value
+              label: $:`选项${scope.item.remark}`
+              value: $:scope.item.name
