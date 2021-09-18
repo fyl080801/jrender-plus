@@ -32,11 +32,11 @@ export const useRootRender = (setup?) => {
 }
 
 export const useScope = (scope) => {
-  const { scope: parent } = inject(scopeParentToken, { scope: reactive({}) })
+  const { scope: parent } = inject(scopeParentToken, reactive({ scope: {} }))
 
-  const merged = {
-    scope: assignObject(parent, isReactive(scope) ? scope : reactive(scope)),
-  }
+  const merged = reactive({
+    scope: assignObject(parent, scope),
+  })
 
   provide(scopeParentToken, merged)
 
