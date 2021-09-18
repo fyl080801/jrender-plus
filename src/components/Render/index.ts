@@ -7,6 +7,8 @@ export const useRender = (app: App) => {
 
   // 全局 render
   useGlobalRender(({ onBeforeRender, onRender, addFunction, addDataSource }) => {
+    const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
+
     onBeforeRender(() => (field, next) => {
       if (typeof field.value === 'string') {
         const paths = field.value.split('.')
@@ -49,9 +51,8 @@ export const useRender = (app: App) => {
       next(field)
     })
 
-    // for 表达式，还不知道怎么具体实现vue的for
+    // // for 表达式，还不知道怎么具体实现vue的for
     onBeforeRender(({ context }) => {
-      const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
       let cached = null
       const watchList = []
 
@@ -60,66 +61,109 @@ export const useRender = (app: App) => {
         watchList.length = 0
       })
 
-      const resolveChildren = () => {
-        const children = []
-
-        cached?.children?.forEach((child) => {
-          if (child.for === undefined || !forAliasRE.test(child.for)) {
-            children.push(child)
-          } else {
-            // 怎么实现？
-            const [origin, obj, source] = forAliasRE.exec(child.for)
-            const data = deepGet(context, source)
-
-            data.forEach((item) => {
-              children.push(assignObject(child, { for: undefined, $scope: { item } }))
-            })
-          }
-        })
-
-        return children
-      }
-
       return (field, next) => {
-        watchList.forEach((w) => w())
-        watchList.length = 0
-
-        if (!field.children || !field.children.find((child) => child.for !== undefined)) {
-          return next(field)
-        }
-
         cached = assignObject(field)
 
-        const children = []
-
-        field.children.forEach((child) => {
-          if (child.for === undefined || !forAliasRE.test(child.for)) {
-            children.push(child)
-          } else {
-            const [origin, obj, source] = forAliasRE.exec(child.for)
-            const data = deepGet(context, source)
-            data.forEach((item) => {
-              children.push(
-                h(JNode, { field: child, scope: assignObject(context.scope, { item }) }),
-              )
-            })
+        field?.children?.forEach((child) => {
+          const matched = forAliasRE.exec(child.for)
+          if (matched) {
+            const [origin, props, source] = matched
             watchList.push(
               watch(
                 () => deepGet(context, source),
                 () => {
-                  // 调 next 是为了重新输出组件定义达到重新渲染
-                  next(assignObject(cached, { for: undefined, children: resolveChildren() }))
+                  next({})
+                  nextTick(() => {
+                    next(cached)
+                  })
                 },
+                { deep: true },
               ),
             )
           }
         })
 
-        next(assignObject(field, { for: undefined, children }))
+        next(field)
       }
     })
 
-    onRender((field) => {
+    onRender(({ context }) => (field) => {
+      field.children = field.children?.reduce((target, child) => {
+        const matched = forAliasRE.exec(child.for)
+        if (child.for === undefined || !matched) {
+          target.push(child)
+        } else {
+          const [origin, props, source] = matched
+          deepGet(context, source).forEach((item) => {
+            target.push(assignObject(child, { for: undefined, $scope: { [props]: item } }))
+          })
+        }
+        return target
+      }, [])
+      return field
+    })
+    // onBeforeRender(({ context }) => {
+    //   const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/,
+    //     watchList = []
+    //   let cached = null
+
+    //   onBeforeUnmount(() => {
+    //     watchList.forEach((w) => w())
+    //     watchList.length = 0
+    //   })
+
+    //   const resolveChildren = (field, cb?) => {
+    //     const children = []
+
+    //     field?.children?.forEach((child) => {
+    //       const matched = forAliasRE.exec(child.for)
+
+    //       if (child.for === undefined || !matched) {
+    //         children.push(child)
+    //       } else {
+    //         // 怎么实现？
+    //         const [origin, obj, source] = matched,
+    //           data = deepGet(context, source)
+
+    //         data.forEach((item) => {
+    //           children.push(assignObject(child, { for: undefined, $scope: { [obj]: item } }))
+    //         })
+
+    //         cb && cb(child, matched)
+    //       }
+    //     })
+
+    //     return children
+    //   }
+
+    //   return (field, next) => {
+    //     watchList.forEach((w) => w())
+    //     watchList.length = 0
+
+    //     if (!field.children || !field.children.find((child) => child.for !== undefined)) {
+    //       return next(field)
+    //     }
+
+    //     cached = assignObject(field)
+
+    //     const children = resolveChildren(field, (child, [origin, obj, source]) => {
+    //       watchList.push(
+    //         watch(
+    //           [() => deepGet(context, source), () => deepGet(context, source)?.length],
+    //           () => {
+    //             // 调 next 是为了重新输出组件定义达到重新渲染
+    //             next(assignObject(cached, { for: undefined, children: resolveChildren(cached) }))
+    //           },
+    //           { deep: true },
+    //         ),
+    //       )
+    //     })
+
+    //     next(assignObject(field, { for: undefined, children }))
+    //   }
+    // })
+
+    onRender(() => (field) => {
       if (field.props?.condition !== undefined && !field.props.condition) {
         return null
       }

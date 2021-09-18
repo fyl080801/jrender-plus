@@ -17,14 +17,16 @@ import { getProxyDefine, injectProxy } from '../utils/proxy'
 const JNode = defineComponent({
   props: {
     field: { type: Object, required: true },
-    scope: { type: [Object, String, Number, Boolean], default: () => ({}) },
+    scope: { type: Object, default: () => ({}) },
   },
   setup(props) {
     const { context, mergedServices, slots } = useJRender()
 
     const proxy = mergedServices.proxy.map((p) => p({ functional: mergedServices.functional }))
 
-    const mergedContext = assignObject(context, { scope: props.scope })
+    const mergedContext = assignObject(context, {
+      scope: assignObject(context.scope || {}, props.scope),
+    })
 
     const injector = injectProxy({
       context: mergedContext,
@@ -33,109 +35,93 @@ const JNode = defineComponent({
 
     const renderField = ref()
 
-    const renderChildren = ref()
+    const beforeRenders = [
+      ...mergedServices.beforeRenderHandlers,
+      () => (field, next) => {
+        renderField.value = injector(getProxyDefine(field))
+        next(renderField.value)
+      },
+    ].map((provider) => provider({ context: mergedContext }))
 
-    const onBeforeRenderHook = () => (field, next) => {
-      renderField.value = injector(getProxyDefine(field))
+    const renders = [
+      ...mergedServices.renderHandlers,
+      () => (field) => {
+        field.children = Object.entries(
+          field?.children?.reduce((target, child) => {
+            const slotName = child?.slot || 'default'
+            target[slotName] ||= []
 
-      const slotGroups = renderField.value?.children?.reduce((target, child) => {
-        const slotName = child?.slot || 'default'
-        target[slotName] ||= []
+            if (child?.component === 'slot') {
+              const slot = slots[child.name || 'default']
+              isFunction(slot) &&
+                slot(
+                  isObject(props.scope) ? assignObject(child.props, props.scope) : props.scope,
+                ).forEach((node) => {
+                  target[slotName].push(node)
+                })
+            } else {
+              target[slotName].push(child)
+            }
 
-        if (child?.component === 'slot') {
-          const slot = slots[child.name || 'default']
-          if (isFunction(slot)) {
-            slot(
-              isObject(props.scope) ? assignObject(child.props, props.scope) : props.scope,
-            ).forEach((node) => {
-              target[slotName].push(node)
+            return target
+          }, {}) || {},
+        ).reduce((target, [key, value]) => {
+          target[key] = (scope) =>
+            (value as any).map((child) => {
+              const node = isVNode(child)
+                ? child
+                : isObject(child)
+                ? renderNode(child, { ...scope, ...props.scope, ...(child.$scope || {}) })
+                : child
+              return node
             })
-          }
-        } else {
-          target[slotName].push(
-            isVNode(child)
-              ? child
-              : isObject(child)
-              ? h(JNode, { field: child, scope: assignObject(props.scope, child.$scope || {}) })
-              : child,
-          )
-        }
+          return target
+        }, {})
 
-        return target
-      }, {})
+        return field
+      },
+    ].map((provider) => provider({ context: mergedContext }))
 
-      renderChildren.value = Object.keys(slotGroups || {}).reduce((target, key) => {
-        target[key] = () => slotGroups[key]
-        return target
-      }, {})
-
-      next(renderField.value)
-    }
-
-    const beforeRenders = [...mergedServices.beforeRenderHandlers, onBeforeRenderHook].map(
-      (provider) => provider({ context: mergedContext }),
-    )
-
+    // 如果children发生变化就重新渲染本节点和以下节点
     watch(
       () => props.field,
-      (value) => {
-        if (!value) {
+      () => {
+        if (!props.field) {
           renderField.value = null
           return
         }
-
-        pipeline(...beforeRenders)(assignObject(value))
+        pipeline(...beforeRenders)(assignObject(props.field))
       },
       { immediate: true },
     )
 
-    // 如果children发生变化就重新渲染本节点和以下节点
-    watch(
-      () => props.field?.children,
-      () => {
-        pipeline(...beforeRenders)(assignObject(props.field))
-      },
-    )
-
-    watch(
-      () => props.field?.children?.length,
-      () => {
-        pipeline(...beforeRenders)(assignObject(props.field))
-      },
-    )
-
     return () => {
-      if (!renderField.value) {
+      if (!renderField.value?.component) {
         return
       }
 
-      const renderingComponent =
-        toRaw(mergedServices.components[renderField.value?.component]) ||
-        renderField.value?.component
-
-      const rendingProps = deepClone(injector(getProxyDefine(renderField.value?.props || {})))
-
-      let rending = {
-        ...(renderField.value || {}),
-        component: renderingComponent,
-        props: rendingProps,
-        // 渲染中不能操作children
-        children: undefined,
-      }
-
-      for (let i = 0; i < mergedServices.renderHandlers.length; i++) {
-        if (rending) {
-          rending = mergedServices.renderHandlers[i](rending)
-        }
-      }
-
-      return (
-        rending &&
-        rending.component &&
-        h(resolveDynamicComponent(rending.component) as any, rending.props, renderChildren.value)
+      let rending = assignObject(
+        deepClone(assignObject(renderField.value, { children: undefined })),
+        {
+          component:
+            toRaw(mergedServices.components[renderField.value?.component]) ||
+            renderField.value?.component,
+          children: renderField.value.children,
+        },
       )
+
+      for (const render of renders) {
+        if (!rending?.component) {
+          return
+        }
+        rending = render(rending)
+      }
+
+      return h(resolveDynamicComponent(rending.component) as any, rending.props, rending.children)
     }
   },
 })
+
+export const renderNode = (field, scope) => h(JNode, { field, scope })
 
 export default JNode

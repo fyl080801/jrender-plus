@@ -114,7 +114,11 @@ export default defineComponent({
         value.forEach((item) => {
           const injected = injector(deepClone(item))
 
-          const watcher = isFunction(injected.watch) ? injected.watch : () => injected.watch
+          const watcher = isFunction(injected.watch)
+            ? injected.watch
+            : isArray(injected.watch)
+            ? injected.watch.map((sw) => (isFunction(sw) ? sw : () => sw))
+            : () => injected.watch
 
           watchList.push(
             watch(

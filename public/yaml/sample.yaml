@@ -48,6 +48,9 @@ fields:
 
       - component: slot # slot 内容
 
+      - component: input
+        value: rawdata[0].name
+
   - component: el-button
     props:
       onClick: $:() => tabledata.fetch()
@@ -82,7 +85,7 @@ fields:
         model: model.sel
         children:
           - component: el-radio
-            for: (item, index) in tabledata.data
+            for: item in tabledata.data
             props:
               label: $:scope.item.name
             children:
@@ -105,7 +108,7 @@ fields:
         models: model.checks
         children:
           - component: el-checkbox
-            for: (item, index) in rawdata
+            for: item in rawdata
             props:
               label: $:scope.item.value
             children:
@@ -127,7 +130,8 @@ fields:
             props:
               innerText: title
           - component: el-option
-            for: (item, index) in model.checks # 这个如何实现？
+            for: item in model.checks # 这个如何实现？
             props:
+              key: $:scope.item
               label: $:`选项${scope.item}`
               value: $:scope.item
