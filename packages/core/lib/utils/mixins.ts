@@ -1,9 +1,12 @@
-import { inject, provide } from 'vue'
+import { inject, provide, reactive, isReactive } from 'vue'
+import { assignObject } from './helper'
 import { createServiceProvider } from './service'
 
 const serviceToken = Symbol('serviceToken')
 
 const setupToken = Symbol('setupToken')
+
+const scopeParentToken = Symbol('scopeParentToken')
 
 export const useJRender = (props?) => {
   if (props) {
@@ -26,4 +29,16 @@ export const useRootRender = (setup?) => {
   } else {
     return inject(setupToken, provider.getServices())
   }
+}
+
+export const useScope = (scope) => {
+  const { scope: parent } = inject(scopeParentToken, { scope: reactive({}) })
+
+  const merged = {
+    scope: assignObject(parent, isReactive(scope) ? scope : reactive(scope)),
+  }
+
+  provide(scopeParentToken, merged)
+
+  return merged
 }

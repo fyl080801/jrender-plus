@@ -1,32 +1,22 @@
-import {
-  defineComponent,
-  ref,
-  watch,
-  h,
-  resolveDynamicComponent,
-  nextTick,
-  onBeforeUnmount,
-  toRaw,
-  isVNode,
-} from 'vue'
+import { defineComponent, ref, watch, h, resolveDynamicComponent, toRaw, isVNode } from 'vue'
 import { assignObject, deepClone, isFunction, isObject, isArray } from '../utils/helper'
-import { useJRender } from '../utils/mixins'
+import { useJRender, useScope } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
 import { getProxyDefine, injectProxy } from '../utils/proxy'
 
 const JNode = defineComponent({
   props: {
     field: { type: Object, required: true },
-    scope: { type: Object, default: () => ({}) },
+    scope: Object,
   },
   setup(props) {
     const { context, mergedServices, slots } = useJRender()
 
+    const { scope } = useScope(props.scope || {})
+
     const proxy = mergedServices.proxy.map((p) => p({ functional: mergedServices.functional }))
 
-    const mergedContext = assignObject(context, {
-      scope: assignObject(context.scope || {}, props.scope),
-    })
+    const mergedContext = assignObject(context, { scope })
 
     const injector = injectProxy({
       context: mergedContext,
@@ -54,9 +44,7 @@ const JNode = defineComponent({
             if (child?.component === 'slot') {
               const slot = slots[child.name || 'default']
               isFunction(slot) &&
-                slot(
-                  isObject(props.scope) ? assignObject(child.props, props.scope) : props.scope,
-                ).forEach((node) => {
+                slot(scope).forEach((node) => {
                   target[slotName].push(node)
                 })
             } else {
@@ -66,15 +54,10 @@ const JNode = defineComponent({
             return target
           }, {}) || {},
         ).reduce((target, [key, value]) => {
-          target[key] = (scope) =>
-            (value as any).map((child) => {
-              const node = isVNode(child)
-                ? child
-                : isObject(child)
-                ? renderNode(child, { ...scope, ...props.scope, ...(child.$scope || {}) })
-                : child
-              return node
-            })
+          target[key] = (slotScope) =>
+            (value as any).map((child) =>
+              isVNode(child) ? child : isObject(child) ? renderNode(child, slotScope) : child,
+            )
           return target
         }, {})
 
@@ -84,7 +67,7 @@ const JNode = defineComponent({
 
     // 如果children发生变化就重新渲染本节点和以下节点
     watch(
-      () => props.field,
+      [() => props.field, () => props.field?.children, () => props.field?.children?.length],
       () => {
         if (!props.field) {
           renderField.value = null
@@ -122,6 +105,6 @@ const JNode = defineComponent({
   },
 })
 
-export const renderNode = (field, scope) => h(JNode, { field, scope })
+export const renderNode = (field, scope?) => h(JNode, { field, scope })
 
 export default JNode

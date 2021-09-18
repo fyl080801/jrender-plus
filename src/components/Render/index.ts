@@ -1,6 +1,6 @@
 import { App, nextTick, reactive, watch, h, onBeforeUnmount } from 'vue'
 import JRender, { useGlobalRender, JNode, assignObject } from '@jrender-plus/core'
-import { deepGet } from '@jrender-plus/core'
+import { deepGet, renderNode } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
   app.use(JRender)
@@ -74,7 +74,7 @@ export const useRender = (app: App) => {
                 () => {
                   next({})
                   nextTick(() => {
-                    next(cached)
+                    next(assignObject(cached))
                   })
                 },
                 { deep: true },
@@ -95,73 +95,17 @@ export const useRender = (app: App) => {
         } else {
           const [origin, props, source] = matched
           deepGet(context, source).forEach((item) => {
-            target.push(assignObject(child, { for: undefined, $scope: { [props]: item } }))
+            target.push(
+              renderNode(assignObject(child, { for: undefined }), {
+                [props]: item,
+              }),
+            )
           })
         }
         return target
       }, [])
       return field
     })
-    // onBeforeRender(({ context }) => {
-    //   const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/,
-    //     watchList = []
-    //   let cached = null
-
-    //   onBeforeUnmount(() => {
-    //     watchList.forEach((w) => w())
-    //     watchList.length = 0
-    //   })
-
-    //   const resolveChildren = (field, cb?) => {
-    //     const children = []
-
-    //     field?.children?.forEach((child) => {
-    //       const matched = forAliasRE.exec(child.for)
-
-    //       if (child.for === undefined || !matched) {
-    //         children.push(child)
-    //       } else {
-    //         // 怎么实现？
-    //         const [origin, obj, source] = matched,
-    //           data = deepGet(context, source)
-
-    //         data.forEach((item) => {
-    //           children.push(assignObject(child, { for: undefined, $scope: { [obj]: item } }))
-    //         })
-
-    //         cb && cb(child, matched)
-    //       }
-    //     })
-
-    //     return children
-    //   }
-
-    //   return (field, next) => {
-    //     watchList.forEach((w) => w())
-    //     watchList.length = 0
-
-    //     if (!field.children || !field.children.find((child) => child.for !== undefined)) {
-    //       return next(field)
-    //     }
-
-    //     cached = assignObject(field)
-
-    //     const children = resolveChildren(field, (child, [origin, obj, source]) => {
-    //       watchList.push(
-    //         watch(
-    //           [() => deepGet(context, source), () => deepGet(context, source)?.length],
-    //           () => {
-    //             // 调 next 是为了重新输出组件定义达到重新渲染
-    //             next(assignObject(cached, { for: undefined, children: resolveChildren(cached) }))
-    //           },
-    //           { deep: true },
-    //         ),
-    //       )
-    //     })
-
-    //     next(assignObject(field, { for: undefined, children }))
-    //   }
-    // })
 
     onRender(() => (field) => {
       if (field.props?.condition !== undefined && !field.props.condition) {

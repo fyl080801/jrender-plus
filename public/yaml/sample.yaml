@@ -109,6 +109,7 @@ fields:
         children:
           - component: el-checkbox
             for: item in rawdata
+            mark: true
             props:
               label: $:scope.item.value
             children:

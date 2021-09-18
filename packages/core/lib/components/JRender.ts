@@ -11,7 +11,7 @@ import {
   resolveComponent,
 } from 'vue'
 import { assignArray, assignObject, deepClone, isArray, isFunction } from '../utils/helper'
-import { useRootRender, useJRender } from '../utils/mixins'
+import { useRootRender, useJRender, useScope } from '../utils/mixins'
 import { injectProxy } from '../utils/proxy'
 import { createServiceProvider, mergeServices, globalServiceProvider } from '../utils/service'
 import JNode from './JNode'
@@ -49,6 +49,8 @@ export default defineComponent({
       // fields: props.fields,
       mergedServices,
     })
+
+    useScope({})
 
     watch(
       () => context.model,

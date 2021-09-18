@@ -1,10 +1,11 @@
+import { toRaw } from 'vue'
 import { isArray, isDom, isFunction, isObject } from './helper'
 
 const PROXY = '__j_proxy'
 const RAW = '__j_raw'
 
 export const isInjectedProxy = (target) => {
-  return target[PROXY]
+  return target !== undefined && target !== null && target[PROXY]
 }
 
 export const getProxyDefine = (target) => {
@@ -32,20 +33,20 @@ export const injectProxy = (services) => {
         }
 
         if (p === RAW) {
-          return target
+          return input
         }
 
-        const value = Reflect.get(target, p, receiver)
+        const value = Reflect.get(toRaw(target), p, receiver)
 
         for (const f of handlers) {
           const handler = f(value)
 
           if (handler && isFunction(handler)) {
-            return inject(handler(context))
+            return inject(getProxyDefine(handler(context)))
           }
         }
 
-        return (!isDom(value) && inject(value)) || value
+        return (!isDom(value) && inject(getProxyDefine(value))) || value
       },
     })
   }
