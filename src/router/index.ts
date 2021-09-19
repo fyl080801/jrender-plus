@@ -15,6 +15,11 @@ export const router = createRouter({
       component: () => import('@/views/Table.vue'),
     },
     {
+      path: '/designer',
+      name: 'designer',
+      component: () => import('@/views/designer/Layout.vue'),
+    },
+    {
       path: '/',
       redirect: '/sample',
     },
