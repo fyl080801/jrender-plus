@@ -1,19 +1,7 @@
-import {
-  defineComponent,
-  reactive,
-  isReactive,
-  watch,
-  ref,
-  computed,
-  nextTick,
-  onBeforeMount,
-  h,
-  resolveComponent,
-} from 'vue'
+import { defineComponent, reactive, isReactive, watch, ref, computed, nextTick, h } from 'vue'
 import { assignArray, assignObject, deepClone, isArray, isFunction } from '../utils/helper'
-import { useRootRender, useJRender, useScope } from '../utils/mixins'
+import { useJRender, useScope, useListener, useServices } from '../utils/mixins'
 import { injectProxy } from '../utils/proxy'
-import { createServiceProvider, mergeServices, globalServiceProvider } from '../utils/service'
 import JNode from './JNode'
 
 export default defineComponent({
@@ -27,27 +15,21 @@ export default defineComponent({
   components: { JNode },
   emits: ['setup', 'update:modelValue'],
   setup(props, { emit, slots }) {
-    const provider = createServiceProvider()
-
-    const rootServices = useRootRender()
-
-    emit('setup', provider.getSetting())
+    const services = useServices({ emit })
 
     const context = reactive({
       model: isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
     })
 
-    const mergedServices = mergeServices(
-      globalServiceProvider.getServices(),
-      rootServices,
-      provider.getServices(),
-    )
+    const injector = injectProxy({
+      context,
+      proxy: services.proxy.map((p) => p({ functional: services.functional })),
+    })
 
     useJRender({
       context,
       slots,
-      // fields: props.fields,
-      mergedServices,
+      services,
       props,
     })
 
@@ -60,18 +42,13 @@ export default defineComponent({
       },
     )
 
-    const injector = injectProxy({
-      context,
-      proxy: mergedServices.proxy.map((p) => p({ functional: mergedServices.functional })),
-    })
-
     // dataSource
     watch(
       () => props.dataSource,
       (value) => {
         Object.keys(value || {}).forEach((key) => {
           const info = value[key]
-          const provider = mergedServices.dataSource[info.type || 'default']
+          const provider = services.dataSource[info.type || 'default']
 
           if (['model', 'scope', 'arguments', 'refs'].indexOf(key) < 0 && isFunction(provider)) {
             context[key] = provider(() => injector(info.props))
@@ -102,64 +79,11 @@ export default defineComponent({
     )
     //#endregion
 
-    //#region listeners 监听
-    const watchList = []
-    watch(
-      () => props.listeners,
-      (value) => {
-        watchList.forEach((watcher) => watcher())
-
-        if (!value || !isArray(value)) {
-          return
-        }
-
-        value.forEach((item) => {
-          const injected = injector(deepClone(item))
-
-          const watcher = isFunction(injected.watch)
-            ? injected.watch
-            : isArray(injected.watch)
-            ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
-            : () => injected.watch
-
-          watchList.push(
-            watch(
-              watcher,
-              () => {
-                injected.actions?.forEach((action) => {
-                  if (action.condition === undefined || !!action.condition) {
-                    if (isFunction(action.handler)) {
-                      if (action.timeout) {
-                        setTimeout(() => {
-                          action.handler()
-                        }, action.timeout)
-                      } else {
-                        action.handler()
-                      }
-                    }
-                  }
-                })
-              },
-              {
-                deep: injected.deep,
-                immediate: injected.immediate,
-              },
-            ),
-          )
-        })
-      },
-      { deep: false, immediate: true },
-    )
-
-    onBeforeMount(() => {
-      watchList.forEach((watcher) => watcher())
-      watchList.length = 0
-    })
-    //#endregion
+    useListener(props, { injector })
 
     return () =>
       isArrayRoot.value
-        ? roots.value.map((field) => h(resolveComponent('JNode'), { field }))
-        : h(resolveComponent('JNode'), { field: roots })
+        ? roots.value.map((field) => h(JNode, { field }))
+        : h(JNode, { field: roots })
   },
 })

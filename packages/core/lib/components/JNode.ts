@@ -1,13 +1,4 @@
-import {
-  defineComponent,
-  ref,
-  watch,
-  h,
-  resolveDynamicComponent,
-  toRaw,
-  isVNode,
-  effectScope,
-} from 'vue'
+import { defineComponent, ref, watch, h, resolveDynamicComponent, toRaw, isVNode } from 'vue'
 import { assignObject, deepClone, isFunction, isObject, isArray } from '../utils/helper'
 import { useJRender, useScope } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
@@ -19,33 +10,31 @@ const JNode = defineComponent({
     scope: Object,
   },
   setup(props) {
-    const { context, mergedServices, slots } = useJRender()
+    const { context, services, slots } = useJRender()
 
     const { scope } = useScope(props.scope || {})
 
-    const proxy = mergedServices.proxy.map((p) => p({ functional: mergedServices.functional }))
-
     const mergedContext = assignObject(context, { scope })
 
-    const services = { context: mergedContext, renderNode }
+    const sharedServices = { context: mergedContext, renderNode }
 
     const injector = injectProxy({
       context: mergedContext,
-      proxy,
+      proxy: services.proxy.map((p) => p({ functional: services.functional })),
     })
 
     const renderField = ref()
 
     const beforeRenders = [
-      ...mergedServices.beforeRenderHandlers,
+      ...services.beforeRenderHandlers,
       () => (field, next) => {
         renderField.value = injector(getProxyDefine(field))
         next(renderField.value)
       },
-    ].map((provider) => provider(services))
+    ].map((provider) => provider(sharedServices))
 
     const renders = [
-      ...mergedServices.renderHandlers,
+      ...services.renderHandlers,
       () => (field) => {
         if (!field) {
           return field
@@ -78,7 +67,7 @@ const JNode = defineComponent({
 
         return field
       },
-    ].map((provider) => provider(services))
+    ].map((provider) => provider(sharedServices))
 
     // 如果children发生变化就重新渲染本节点和以下节点
     watch(
@@ -102,7 +91,7 @@ const JNode = defineComponent({
         deepClone(assignObject(renderField.value, { children: undefined })),
         {
           component:
-            toRaw(mergedServices.components[renderField.value?.component]) ||
+            toRaw(services.components[renderField.value?.component]) ||
             renderField.value?.component,
           children: renderField.value.children,
         },

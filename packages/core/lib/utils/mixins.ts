@@ -1,6 +1,6 @@
-import { inject, provide, reactive, isReactive } from 'vue'
-import { assignObject } from './helper'
-import { createServiceProvider } from './service'
+import { inject, provide, reactive, isReactive, onBeforeMount, watch } from 'vue'
+import { assignObject, deepClone, isArray, isFunction } from './helper'
+import { createServiceProvider, globalServiceProvider, mergeServices } from './service'
 
 const serviceToken = Symbol('serviceToken')
 
@@ -8,13 +8,13 @@ const setupToken = Symbol('setupToken')
 
 const scopeParentToken = Symbol('scopeParentToken')
 
-export const useJRender = (options?) => {
-  if (options) {
-    const { context, slots, mergedServices, props } = options
+export const useJRender = (props?) => {
+  if (props) {
+    const { context, slots, services } = props
 
-    provide(serviceToken, { context, slots, mergedServices })
+    provide(serviceToken, { context, slots, services })
 
-    return options
+    return props
   } else {
     return inject(serviceToken)
   }
@@ -29,6 +29,71 @@ export const useRootRender = (setup?) => {
   } else {
     return inject(setupToken, provider.getServices())
   }
+}
+
+export const useListener = (props, { injector }) => {
+  const watchList = []
+  watch(
+    () => props.listeners,
+    (value) => {
+      watchList.forEach((watcher) => watcher())
+
+      if (!value || !isArray(value)) {
+        return
+      }
+
+      value.forEach((item) => {
+        const injected = injector(deepClone(item))
+
+        const watcher = isFunction(injected.watch)
+          ? injected.watch
+          : isArray(injected.watch)
+          ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
+          : () => injected.watch
+
+        watchList.push(
+          watch(
+            watcher,
+            () => {
+              injected.actions?.forEach((action) => {
+                if (action.condition === undefined || !!action.condition) {
+                  if (isFunction(action.handler)) {
+                    if (action.timeout) {
+                      setTimeout(() => {
+                        action.handler()
+                      }, action.timeout)
+                    } else {
+                      action.handler()
+                    }
+                  }
+                }
+              })
+            },
+            {
+              deep: injected.deep,
+              immediate: injected.immediate,
+            },
+          ),
+        )
+      })
+    },
+    { deep: false, immediate: true },
+  )
+
+  onBeforeMount(() => {
+    watchList.forEach((watcher) => watcher())
+    watchList.length = 0
+  })
+}
+
+export const useServices = ({ emit }) => {
+  const provider = createServiceProvider()
+
+  emit('setup', provider.getSetting())
+
+  const rootServices = useRootRender()
+
+  return mergeServices(globalServiceProvider.getServices(), rootServices, provider.getServices())
 }
 
 export const useScope = (scope) => {
