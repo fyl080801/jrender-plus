@@ -9,3 +9,4 @@ fields:
       - component: p
         props:
           innerText: 自定义组件1
+      - component: slot

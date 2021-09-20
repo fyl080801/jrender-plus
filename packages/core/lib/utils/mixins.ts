@@ -10,9 +10,9 @@ const scopeParentToken = Symbol('scopeParentToken')
 
 export const useJRender = (props?) => {
   if (props) {
-    const { context, slots, services } = props
+    const { context, render, services } = props
 
-    provide(serviceToken, { context, slots, services })
+    provide(serviceToken, { context, render, services })
 
     return props
   } else {

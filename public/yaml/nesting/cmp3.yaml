@@ -7,12 +7,24 @@ fields:
         border: 1px solid blue
         textAlign: center
     children:
-      - component: h2
-        props:
-          innerText: 自定义组件3
+      - component: h3
+        children:
+          - component: span
+            props:
+              innerText: 自定义组件3
+          - component: slot
+            name: head
+
       - component: div
         props:
           style:
             border: 1px solid red
         children:
           - component: slot
+      - component: custom
+        props:
+          url: /yaml/nesting/cmp1.yaml
+        children:
+          - component: span
+            props:
+              innerText: slot里的slot

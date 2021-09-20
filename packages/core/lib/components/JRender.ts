@@ -14,8 +14,8 @@ export default defineComponent({
   },
   components: { JNode },
   emits: ['setup', 'update:modelValue'],
-  setup(props, { emit, slots }) {
-    const services = useServices({ emit })
+  setup(props, ctx) {
+    const services = useServices({ emit: ctx.emit })
 
     const context = reactive({
       model: isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
@@ -28,7 +28,7 @@ export default defineComponent({
 
     useJRender({
       context,
-      slots,
+      render: ctx,
       services,
       props,
     })
@@ -38,7 +38,7 @@ export default defineComponent({
     watch(
       () => context.model,
       (value) => {
-        emit('update:modelValue', value)
+        ctx.emit('update:modelValue', value)
       },
     )
 

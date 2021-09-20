@@ -1,15 +1,9 @@
 <script lang="ts" setup>
 import { fetchYaml } from '@/utils/data'
+import { useRootRender } from '@jrender-plus/core'
 import { reactive, onMounted, watch, onBeforeUnmount } from 'vue'
 
-const configs = reactive({
-  model: {},
-  datasource: {},
-  listeners: [],
-  fields: [],
-})
-
-const onSetup = ({ onBeforeRender }) => {
+useRootRender(({ onBeforeRender }) => {
   onBeforeRender(() => {
     const customs = {}
     const watchs = []
@@ -23,7 +17,7 @@ const onSetup = ({ onBeforeRender }) => {
     }
 
     onBeforeUnmount(() => {
-      console.log('xxx')
+      // console.log('xxx')
       watchs.forEach((w) => w())
       watchs.length = 0
     })
@@ -55,7 +49,14 @@ const onSetup = ({ onBeforeRender }) => {
       )
     }
   })
-}
+})
+
+const configs = reactive({
+  model: {},
+  datasource: {},
+  listeners: [],
+  fields: [],
+})
 
 onMounted(async () => {
   const { fields, listeners, datasource }: any = await fetchYaml('/yaml/nesting.yaml')
@@ -72,7 +73,6 @@ onMounted(async () => {
       :fields="configs.fields"
       :listeners="configs.listeners"
       :data-source="configs.datasource"
-      @setup="onSetup"
     >
     </JRender>
   </div>

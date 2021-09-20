@@ -10,7 +10,7 @@ const JNode = defineComponent({
     scope: Object,
   },
   setup(props) {
-    const { context, services, slots } = useJRender()
+    const { context, services, render } = useJRender()
 
     const { scope } = useScope(props.scope || {})
 
@@ -46,7 +46,7 @@ const JNode = defineComponent({
             target[slotName] ||= []
 
             if (child?.component === 'slot') {
-              const slot = slots[child.name || 'default']
+              const slot = render.slots[child.name || 'default']
               isFunction(slot) &&
                 slot(scope).forEach((node) => {
                   target[slotName].push(node)
