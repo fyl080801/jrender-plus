@@ -58,7 +58,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div key="xxx">
+  <div>
     <JRender
       v-model="configs.model"
       :fields="configs.fields"

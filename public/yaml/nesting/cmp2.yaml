@@ -1,0 +1,20 @@
+fields:
+  - component: div
+    props:
+      style:
+        padding: 5px
+        width: 200px
+        border: 1px solid blue
+    children:
+      - component: h2
+        props:
+          innerText: 自定义组件2
+      - component: div
+        props:
+          style:
+            border: 1px solid red
+        children:
+          - component: p
+            props:
+              innerText: content
+          - component: slot

@@ -7,7 +7,7 @@ import NodeBody from './NodeBody.vue'
 defineProps({
   depth: { type: Number, default: 0 },
 })
-const context = useDocument()
+const context: any = useDocument()
 const { node, children }: any = useDocumentNode()
 const onNodeDroped = () => {
   context.state.changes.push({

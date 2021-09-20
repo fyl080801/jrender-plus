@@ -20,6 +20,11 @@ export const router = createRouter({
       component: () => import('@/views/designer/Layout.vue'),
     },
     {
+      path: '/nesting',
+      name: 'nesting',
+      component: () => import('@/views/Nesting.vue'),
+    },
+    {
       path: '/',
       redirect: '/sample',
     },

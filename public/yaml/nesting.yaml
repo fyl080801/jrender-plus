@@ -1,0 +1,46 @@
+datasource:
+
+fields:
+  - component: div
+    props:
+      class: cus
+    children:
+      - component: h1
+        props:
+          innerText: 动态嵌套
+      - component: custom
+        props:
+          url: /yaml/nesting/cmp1.yaml
+      - component: custom
+        props:
+          url: /yaml/nesting/cmp2.yaml
+        children:
+          - component: span
+            props:
+              innerText: slot里的内容1
+
+      - component: div
+        children:
+          - component: select
+            value: model.text
+            children:
+              - component: option
+                props:
+                  value: /yaml/nesting/cmp2.yaml
+                  label: cmp2
+              - component: option
+                props:
+                  value: /yaml/nesting/cmp3.yaml
+                  label: cmp3
+          - component: button
+            props:
+              innerText: 更新
+              onClick: $:() => model.cmpurl = model.text
+
+      - component: custom
+        props:
+          url: $:model.cmpurl
+        children:
+          - component: span
+            props:
+              innerText: slot里的内容2

@@ -1,0 +1,18 @@
+fields:
+  - component: div
+    props:
+      style:
+        padding: 5px
+        width: 400px
+        border: 1px solid blue
+        textAlign: center
+    children:
+      - component: h2
+        props:
+          innerText: 自定义组件3
+      - component: div
+        props:
+          style:
+            border: 1px solid red
+        children:
+          - component: slot
