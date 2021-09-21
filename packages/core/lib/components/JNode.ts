@@ -69,7 +69,6 @@ const JNode = defineComponent({
       },
     ].map((provider) => provider(sharedServices))
 
-    // 如果children发生变化就重新渲染本节点和以下节点
     watch(
       [() => props.field, () => props.field?.children, () => props.field?.children?.length],
       () => {

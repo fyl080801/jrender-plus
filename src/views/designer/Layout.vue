@@ -1,9 +1,17 @@
 <script lang="ts" setup>
-import { Document } from '@jrender-plus/designer'
+import { reactive } from 'vue'
+import { Container } from '@/components'
+import { Navbar } from './Navbar'
+import '@/styles/designer.scss'
+
+const data = reactive([{ title: 'aaa', children: [{ title: 'bbb', children: [] }] }])
 </script>
 
 <template>
-  <div>
-    <Document />
+  <div class="designer" style="height: 100%; width: 100%">
+    <Container class="position-absolute d-flex flex-column w-100 h-100">
+      <Navbar></Navbar>
+      <Container class="flex-fill"> content </Container>
+    </Container>
   </div>
 </template>

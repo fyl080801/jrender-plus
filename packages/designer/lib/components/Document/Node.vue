@@ -4,17 +4,21 @@ import Dragzone from './Dragzone.vue'
 import { reactive } from 'vue'
 import NodeBody from './NodeBody.vue'
 import NodeChildren from './NodeChildren.vue'
+
 const props = defineProps({
   node: { type: Object, required: true },
   parent: { type: Object, required: false },
   depth: { type: Number, default: 0 },
   index: { type: Number, default: 0 },
 })
+
 const context: any = useDocument()
+
 const { text, isLeaf, isOpen, onToggleOpen }: any = useDocumentNode({
   node: reactive(props.node),
   context,
 })
+
 const onNodeDragstart = (event) => {
   context.state.dragging = true
   const cloned = event.target.cloneNode(true)
@@ -30,6 +34,7 @@ const onNodeDragstart = (event) => {
   //
   context.state.from = { node: props.parent, index: props.index }
 }
+
 const onNodeDroped = () => {
   context.state.changes.push({
     from: context.state.from,

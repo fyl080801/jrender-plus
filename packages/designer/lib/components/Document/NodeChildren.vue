@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import Dragzone from './Dragzone.vue'
 import { useDocument, useDocumentNode } from './mixins'
-import DocumentNode from './Node.vue'
+import Node from './Node.vue'
 import { getNodeId } from '../../utils/tree'
 import NodeBody from './NodeBody.vue'
+
 defineProps({
   depth: { type: Number, default: 0 },
 })
@@ -23,13 +24,13 @@ const onNodeDroped = () => {
       <Dragzone @droped="onNodeDroped" />
     </NodeBody>
     <div class="flex flex-col">
-      <DocumentNode
+      <Node
         v-for="(child, index) in children"
         :key="getNodeId(child)"
         :node="child"
         :parent="node"
         :depth="depth"
-        :index="index"
+        :index="Number(index)"
       />
     </div>
   </div>

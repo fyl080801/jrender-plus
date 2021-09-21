@@ -11,6 +11,8 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@popperjs/core": "^2.10.1",
+    "bootstrap": "^5.1.1",
     "element-plus": "^1.1.0-beta.12",
     "js-yaml": "^4.1.0",
     "vue": "^3.2.12",
