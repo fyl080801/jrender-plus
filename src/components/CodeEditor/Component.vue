@@ -1,27 +1,43 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { editor } from 'monaco-editor'
+import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+// import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import { setDiagnosticsOptions } from 'monaco-yaml'
+// import YamlWorker from 'monaco-editor/esm/vs/basic-languages/yaml/yaml?worker'
+
+setDiagnosticsOptions({
+  enableSchemaRequest: true,
+  hover: true,
+  completion: true,
+  validate: true,
+  format: true,
+})
 ;(self as any).MonacoEnvironment = {
-  getWorker(workerId, label) {
-    if (label === 'json') {
-      return new JsonWorker()
-    }
+  getWorker(_, label) {
+    // if (label === 'json') {
+    //   return new JsonWorker()
+    // }
+    // if (label === 'yaml') {
+    //   return new YamlWorker()
+    // }
     return new EditorWorker()
   },
 }
 
-const props = defineProps({ modelValue: { type: String, required: true } })
+const props = defineProps({
+  modelValue: { type: String, required: true },
+  language: { type: String, default: 'json' },
+})
 
 const emit = defineEmits(['update:modelValue'])
 
-const dom = ref()
-let instance: editor.IStandaloneCodeEditor
+const domRef = ref()
+let instance: monaco.editor.IStandaloneCodeEditor
 
 onMounted(async () => {
-  instance = editor.create(dom.value, {
-    model: editor.createModel(props.modelValue, 'json'),
+  instance = monaco.editor.create(domRef.value, {
+    value: props.modelValue,
     tabSize: 2,
     automaticLayout: true,
     scrollBeyondLastLine: false,
@@ -58,31 +74,3 @@ watch(
 <template>
   <div class="h-full" ref="domRef"></div>
 </template>
-
-<!-- import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { editor } from 'monaco-editor'
-
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-
-self.MonacoEnvironment = {
-  getWorker(workerId, label) {
-    if (label === 'json') {
-      return new JsonWorker()
-    }
-    return new EditorWorker()
-  },
-}
-
-export default defineComponent({
-  name: 'json-editor',
-  props: {
-    modelValue: { type: String, required: true },
-  },
-  emits: ['update:modelValue'],
-  setup(props, ctx) {
-    
-
-    return () => <div class="h-full" ref={dom}></div>
-  },
-}) -->
