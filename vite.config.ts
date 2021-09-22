@@ -3,6 +3,8 @@ import fs from 'fs'
 import { mergeConfig, defineConfig } from 'vite'
 import base from './build/vite.config.base'
 
+const prefix = `monaco-editor/esm/vs`
+
 const packages = fs.readdirSync(path.resolve(__dirname, 'packages')).reduce((target, p) => {
   target[`@jrender-plus/${p}`] = path.resolve(__dirname, `packages/${p}/lib`)
   return target
@@ -17,6 +19,19 @@ const config = defineConfig({
   },
   server: {
     port: 8080,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          jsonWorker: [`${prefix}/language/json/json.worker`],
+          cssWorker: [`${prefix}/language/css/css.worker`],
+          htmlWorker: [`${prefix}/language/html/html.worker`],
+          tsWorker: [`${prefix}/language/typescript/ts.worker`],
+          editorWorker: [`${prefix}/editor/editor.worker`],
+        },
+      },
+    },
   },
 })
 
