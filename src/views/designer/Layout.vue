@@ -2,7 +2,6 @@
 import { reactive } from 'vue'
 import { Container } from '@/components'
 import { Navbar } from './Navbar'
-import '@/styles/designer.scss'
 
 const data = reactive([{ title: 'aaa', children: [{ title: 'bbb', children: [] }] }])
 </script>

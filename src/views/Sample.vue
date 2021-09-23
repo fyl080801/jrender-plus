@@ -71,8 +71,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div style="display: flex">
-    <div style="flex: 1">
+  <div class="flex w-full h-full">
+    <div class="flex-1">
       <CodeEditor
         :model-value="yamldata"
         @update:model-value="onConfigChange"
@@ -80,7 +80,7 @@ onMounted(async () => {
         style="width: 100%; height: 100%"
       ></CodeEditor>
     </div>
-    <div style="flex: 1">
+    <div class="flex-1 overflow-auto">
       <JRender
         v-model="configs.model"
         :fields="configs.fields"
@@ -93,8 +93,8 @@ onMounted(async () => {
         </template>
         <h2>subtitle</h2>
       </JRender>
-      <p>{{ JSON.stringify(configs.model) }}</p>
-      <button @click="onUpdate">change</button>
+      <!-- <p>{{ JSON.stringify(configs.model) }}</p>
+      <button @click="onUpdate">change</button> -->
     </div>
   </div>
 </template>

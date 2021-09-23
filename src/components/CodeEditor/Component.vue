@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import * as monaco from 'monaco-editor'
+import { editor } from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 // import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import { setDiagnosticsOptions } from 'monaco-yaml'
@@ -33,10 +33,10 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const domRef = ref()
-let instance: monaco.editor.IStandaloneCodeEditor
+let instance: editor.IStandaloneCodeEditor
 
 onMounted(async () => {
-  instance = monaco.editor.create(domRef.value, {
+  instance = editor.create(domRef.value, {
     value: props.modelValue,
     tabSize: 2,
     automaticLayout: true,
@@ -47,13 +47,13 @@ onMounted(async () => {
     emit('update:modelValue', instance?.getValue())
   })
 
-  setTimeout(() => {
-    try {
-      instance?.getAction('editor.action.formatDocument')?.run()
-    } catch {
-      //
-    }
-  }, 1000)
+  // setTimeout(() => {
+  //   try {
+  //     instance?.getAction('editor.action.formatDocument')?.run()
+  //   } catch {
+  //     //
+  //   }
+  // }, 1000)
 })
 
 onBeforeUnmount(() => {
@@ -66,7 +66,7 @@ watch(
   () => {
     instance?.setValue(props.modelValue)
 
-    instance?.getAction('editor.action.formatDocument').run()
+    // instance?.getAction('editor.action.formatDocument').run()
   },
 )
 </script>
