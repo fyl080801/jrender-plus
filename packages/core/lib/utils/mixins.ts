@@ -1,4 +1,4 @@
-import { inject, provide, reactive, isReactive, onBeforeMount, watch } from 'vue'
+import { inject, provide, reactive, nextTick, onBeforeMount, watch } from 'vue'
 import { assignObject, deepClone, isArray, isFunction } from './helper'
 import { createServiceProvider, globalServiceProvider, mergeServices } from './service'
 
@@ -37,44 +37,47 @@ export const useListener = (props, { injector }) => {
     () => props.listeners,
     (value) => {
       watchList.forEach((watcher) => watcher())
+      watchList.length = 0
 
       if (!value || !isArray(value)) {
         return
       }
 
-      value.forEach((item) => {
-        const injected = injector(deepClone(item))
+      nextTick(() => {
+        value.forEach((item) => {
+          const injected = injector(deepClone(item))
 
-        const watcher = isFunction(injected.watch)
-          ? injected.watch
-          : isArray(injected.watch)
-          ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
-          : () => injected.watch
+          const watcher = isFunction(injected.watch)
+            ? injected.watch
+            : isArray(injected.watch)
+            ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
+            : () => injected.watch
 
-        watchList.push(
-          watch(
-            watcher,
-            () => {
-              injected.actions?.forEach((action) => {
-                if (action.condition === undefined || !!action.condition) {
-                  if (isFunction(action.handler)) {
-                    if (action.timeout) {
-                      setTimeout(() => {
+          watchList.push(
+            watch(
+              watcher,
+              () => {
+                injected.actions?.forEach((action) => {
+                  if (action.condition === undefined || !!action.condition) {
+                    if (isFunction(action.handler)) {
+                      if (action.timeout) {
+                        setTimeout(() => {
+                          action.handler()
+                        }, action.timeout)
+                      } else {
                         action.handler()
-                      }, action.timeout)
-                    } else {
-                      action.handler()
+                      }
                     }
                   }
-                }
-              })
-            },
-            {
-              deep: injected.deep,
-              immediate: injected.immediate,
-            },
-          ),
-        )
+                })
+              },
+              {
+                deep: injected.deep,
+                immediate: injected.immediate,
+              },
+            ),
+          )
+        })
       })
     },
     { deep: false, immediate: true },

@@ -5,28 +5,27 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/sample',
-      name: 'sample',
-      component: () => import('@/views/Sample.vue'),
-    },
-    {
-      path: '/table',
-      name: 'table',
-      component: () => import('@/views/Table.vue'),
-    },
-    {
-      path: '/designer',
-      name: 'designer',
-      component: () => import('@/views/designer/Layout.vue'),
-    },
-    {
-      path: '/nesting',
-      name: 'nesting',
-      component: () => import('@/views/Nesting.vue'),
+      path: '/demos',
+      component: () => import('@/layout/Layout.vue'),
+      redirect: '/demos/sample',
+      children: [
+        { path: 'sample', name: 'sample', component: () => import('@/views/Sample.vue') },
+        {
+          path: 'designer',
+          name: 'designer',
+          component: () => import('@/views/designer/Layout.vue'),
+        },
+
+        {
+          path: 'nesting',
+          name: 'nesting',
+          component: () => import('@/views/Nesting.vue'),
+        },
+      ],
     },
     {
       path: '/',
-      redirect: '/sample',
+      redirect: '/demos',
     },
   ],
 })

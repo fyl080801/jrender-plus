@@ -95,7 +95,7 @@ export const useRender = (app: App) => {
             target.push(child)
           } else {
             const [origin, props, source] = matched
-            deepGet(context, source).forEach((item) => {
+            deepGet(context, source)?.forEach((item) => {
               target.push(
                 renderNode(assignObject(child, { for: undefined }), {
                   [props]: item,

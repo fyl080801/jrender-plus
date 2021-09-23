@@ -82,28 +82,33 @@ const JNode = defineComponent({
     )
 
     return () => {
-      if (!renderField.value?.component) {
-        return
-      }
-
-      let rending = assignObject(
-        deepClone(assignObject(renderField.value, { children: undefined })),
-        {
-          component:
-            toRaw(services.components[renderField.value?.component]) ||
-            renderField.value?.component,
-          children: renderField.value.children,
-        },
-      )
-
-      for (const render of renders) {
-        if (!rending?.component) {
+      try {
+        if (!renderField.value?.component) {
           return
         }
-        rending = render(rending)
-      }
 
-      return h(resolveDynamicComponent(rending.component) as any, rending.props, rending.children)
+        let rending = assignObject(
+          deepClone(assignObject(renderField.value, { children: undefined })),
+          {
+            component:
+              toRaw(services.components[renderField.value?.component]) ||
+              renderField.value?.component,
+            children: renderField.value.children,
+          },
+        )
+
+        for (const render of renders) {
+          if (!rending?.component) {
+            return
+          }
+          rending = render(rending)
+        }
+
+        return h(resolveDynamicComponent(rending.component) as any, rending.props, rending.children)
+      } catch (ex) {
+        console.warn(ex)
+        return
+      }
     }
   },
 })

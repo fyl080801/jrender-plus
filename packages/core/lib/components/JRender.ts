@@ -36,16 +36,27 @@ export default defineComponent({
     useScope({})
 
     watch(
-      () => context.model,
-      (value) => {
-        ctx.emit('update:modelValue', value)
+      () => props.modelValue,
+      () => {
+        context.model = isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue)
       },
     )
+
+    // watch(
+    //   () => context.model,
+    //   (value) => {
+    //     ctx.emit('update:modelValue', value)
+    //   },
+    // )
 
     // dataSource
     watch(
       () => props.dataSource,
-      (value) => {
+      (value, origin) => {
+        Object.keys(origin || {}).forEach((key) => {
+          delete context[key]
+        })
+
         Object.keys(value || {}).forEach((key) => {
           const info = value[key]
           const provider = services.dataSource[info.type || 'default']
@@ -82,8 +93,10 @@ export default defineComponent({
     useListener(props, { injector })
 
     return () =>
-      isArrayRoot.value
-        ? roots.value.map((field) => h(JNode, { field }))
-        : h(JNode, { field: roots })
+      !updating.value
+        ? isArrayRoot.value
+          ? roots.value.map((field) => h(JNode, { field }))
+          : h(JNode, { field: roots })
+        : null
   },
 })

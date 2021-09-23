@@ -1,8 +1,12 @@
 <script lang="ts" setup>
-import { reactive, onMounted, ref } from 'vue'
+import { reactive, onMounted, ref, nextTick } from 'vue'
 import yaml from 'js-yaml'
-import { fetchYaml } from '@/utils/data'
 import { CodeEditor } from '@/components'
+
+const demos = [
+  { title: '基本示例', url: '/yaml/sample.yaml' },
+  { title: '列表', url: '/yaml/table.yaml' },
+]
 
 const configs = reactive({
   model: {},
@@ -10,6 +14,8 @@ const configs = reactive({
   listeners: [],
   fields: [],
 })
+
+const loading = ref(false)
 
 const yamldata = ref('')
 
@@ -49,52 +55,76 @@ const onSetup = ({ onBeforeRender }) => {
   })
 }
 
-const onUpdate = () => {
-  configs.fields[0].children.push({ component: 'span', props: { innerText: 'cccc' } }) // = [{ component: 'span', props: { innerText: 'cccc' } }]
+// const onUpdate = () => {
+//   configs.fields[0].children.push({ component: 'span', props: { innerText: 'cccc' } }) // = [{ component: 'span', props: { innerText: 'cccc' } }]
+// }
+
+const onConfigChange = (value) => {
+  try {
+    const { fields, listeners, datasource, model }: any = yaml.load(value)
+    if (model) {
+      configs.model = model
+    }
+    configs.fields = fields
+    configs.listeners = listeners
+    configs.datasource = datasource
+  } catch {
+    //
+  }
 }
 
-const onConfigChange = (result) => {
-  const { fields, listeners, datasource }: any = yaml.load(result)
-  configs.fields = fields
-  configs.listeners = listeners
-  configs.datasource = datasource
+const load = async (url) => {
+  loading.value = true
+  const result = await fetch(url)
+  configs.model = {}
+  yamldata.value = await result.text()
+  loading.value = false
 }
 
-onMounted(async () => {
-  const result = await fetchYaml('/yaml/sample.yaml')
-  yamldata.value = yaml.dump(result)
-  const { fields, listeners, datasource }: any = result
-  configs.fields = fields
-  configs.listeners = listeners
-  configs.datasource = datasource
+const toCustom = () => {
+  yamldata.value = `---
+datasource:
+
+listeners:
+
+fields:
+
+`
+}
+
+onMounted(() => {
+  load('/yaml/sample.yaml')
 })
 </script>
 
 <template>
   <div class="flex w-full h-full">
+    <div class="w-1/6 h-full overflow-auto border-r border-gray-300 border-solid">
+      <ul>
+        <a v-for="link in demos" @click="load(link.url)" class="cursor-pointer">
+          <li>{{ link.title }}</li>
+        </a>
+        <a class="cursor-pointer" @click="toCustom"><li>随意编辑</li></a>
+      </ul>
+    </div>
     <div class="flex-1">
       <CodeEditor
         :model-value="yamldata"
-        @update:model-value="onConfigChange"
+        @change="onConfigChange"
         language="yaml"
-        style="width: 100%; height: 100%"
-      ></CodeEditor>
+        class="w-full h-full"
+      />
     </div>
     <div class="flex-1 overflow-auto">
       <JRender
+        v-if="!loading"
         v-model="configs.model"
         :fields="configs.fields"
         :listeners="configs.listeners"
         :data-source="configs.datasource"
         @setup="onSetup"
-      >
-        <template v-slot:head>
-          <h1>head</h1>
-        </template>
-        <h2>subtitle</h2>
-      </JRender>
-      <!-- <p>{{ JSON.stringify(configs.model) }}</p>
-      <button @click="onUpdate">change</button> -->
+      />
+      <p>{{ JSON.stringify(configs.model) }}</p>
     </div>
   </div>
 </template>
