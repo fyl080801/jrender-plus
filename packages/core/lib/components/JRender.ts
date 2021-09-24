@@ -18,7 +18,7 @@ export default defineComponent({
     const services = useServices({ emit: ctx.emit })
 
     const context = reactive({
-      model: isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
+      model: {}, // isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
     })
 
     const injector = injectProxy({
@@ -40,14 +40,15 @@ export default defineComponent({
       () => {
         context.model = isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue)
       },
+      { immediate: true },
     )
 
-    // watch(
-    //   () => context.model,
-    //   (value) => {
-    //     ctx.emit('update:modelValue', value)
-    //   },
-    // )
+    watch(
+      () => context.model,
+      (value) => {
+        ctx.emit('update:modelValue', value)
+      },
+    )
 
     // dataSource
     watch(
@@ -71,7 +72,7 @@ export default defineComponent({
     //
 
     //#region fields
-    const roots = ref(props.fields)
+    const roots = ref([])
     const updating = ref(false)
     const isArrayRoot = computed(() => {
       return isArray(roots.value)
@@ -86,7 +87,7 @@ export default defineComponent({
           updating.value = false
         })
       },
-      {},
+      { deep: false, immediate: true },
     )
     //#endregion
 

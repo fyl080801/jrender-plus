@@ -1,4 +1,4 @@
-import { inject, provide, reactive, nextTick, onBeforeMount, watch } from 'vue'
+import { inject, provide, reactive, nextTick, onBeforeUnmount, watch } from 'vue'
 import { assignObject, deepClone, isArray, isFunction } from './helper'
 import { createServiceProvider, globalServiceProvider, mergeServices } from './service'
 
@@ -34,17 +34,17 @@ export const useRootRender = (setup?) => {
 export const useListener = (props, { injector }) => {
   const watchList = []
   watch(
-    () => props.listeners,
-    (value) => {
+    [() => props.listeners, () => props.modelValue, () => props.dataSource, () => props.fields],
+    () => {
       watchList.forEach((watcher) => watcher())
       watchList.length = 0
 
-      if (!value || !isArray(value)) {
+      if (!props.listeners || !isArray(props.listeners)) {
         return
       }
 
       nextTick(() => {
-        value.forEach((item) => {
+        props.listeners?.forEach((item) => {
           const injected = injector(deepClone(item))
 
           const watcher = isFunction(injected.watch)
@@ -83,7 +83,7 @@ export const useListener = (props, { injector }) => {
     { deep: false, immediate: true },
   )
 
-  onBeforeMount(() => {
+  onBeforeUnmount(() => {
     watchList.forEach((watcher) => watcher())
     watchList.length = 0
   })

@@ -1,3 +1,4 @@
+import { reactive } from 'vue'
 import { deepGet, hasOwnProperty, isArray, isNumberLike, toPath } from './helper'
 
 const computeMatch = /^\$:/g
@@ -48,6 +49,6 @@ export const GET = (target, path, def) => {
 
 // 只读改了也不响应
 export const rawData = (options) => {
-  const data = options()?.data
-  return data !== undefined && data !== null ? data : {}
+  const data = options() || {}
+  return reactive(data !== undefined && data !== null ? data : {})
 }

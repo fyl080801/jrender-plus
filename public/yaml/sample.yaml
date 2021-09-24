@@ -2,11 +2,10 @@
 datasource:
   rawdata:
     props:
-      data:
-        - name: sel1
-          value: 1
-        - name: sel2
-          value: 2
+      - name: sel1
+        value: 1
+      - name: sel2
+        value: 2
 
   tabledata:
     type: fetch

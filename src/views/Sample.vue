@@ -5,6 +5,7 @@ import { CodeEditor } from '@/components'
 
 const demos = [
   { title: '基本示例', url: '/yaml/sample.yaml' },
+  { title: '表单验证', url: '/yaml/formtest.yaml' },
   { title: '列表', url: '/yaml/table.yaml' },
 ]
 
@@ -62,9 +63,7 @@ const onSetup = ({ onBeforeRender }) => {
 const onConfigChange = (value) => {
   try {
     const { fields, listeners, datasource, model }: any = yaml.load(value)
-    if (model) {
-      configs.model = model
-    }
+    configs.model = model || {}
     configs.fields = fields
     configs.listeners = listeners
     configs.datasource = datasource
