@@ -24,6 +24,10 @@ export const router = createRouter({
       ],
     },
     {
+      path: '/eltest',
+      component: () => import('@/views/ElementTest.vue'),
+    },
+    {
       path: '/',
       redirect: '/demos',
     },

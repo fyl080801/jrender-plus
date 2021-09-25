@@ -13,12 +13,12 @@ export default defineComponent({
     dataSource: { type: Object, default: () => ({}) },
   },
   components: { JNode },
-  emits: ['setup', 'update:modelValue'],
+  emits: ['setup'],
   setup(props, ctx) {
     const services = useServices({ emit: ctx.emit })
 
     const context = reactive({
-      model: {}, // isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
+      model: props.modelValue, // isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
     })
 
     const injector = injectProxy({
@@ -38,16 +38,9 @@ export default defineComponent({
     watch(
       () => props.modelValue,
       () => {
-        context.model = isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue)
+        context.model = props.modelValue // isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue)
       },
       { immediate: true },
-    )
-
-    watch(
-      () => context.model,
-      (value) => {
-        ctx.emit('update:modelValue', value)
-      },
     )
 
     // dataSource
