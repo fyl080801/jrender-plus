@@ -109,11 +109,11 @@ fields:
           - component: el-radio
             for: item in tabledata.data
             props:
-              label: $:scope.item.name
+              label: $:item.name
             children:
               - component: span
                 props:
-                  innerText: $:scope.item.remark
+                  innerText: $:item.remark
 
       - component: el-checkbox
         formItem:
@@ -133,20 +133,20 @@ fields:
             for: item in rawdata
             mark: true
             props:
-              label: $:scope.item.value
+              label: $:item.value
             children:
               - component: span
                 props:
-                  innerText: $:scope.item.name
+                  innerText: $:item.name
           - component: el-checkbox
             for: item in tabledata.data
             props:
-              key: $:scope.item.value
-              label: $:scope.item.name
+              key: $:item.value
+              label: $:item.name
             children:
               - component: span
                 props:
-                  innerText: $:`选项${scope.item.remark}`
+                  innerText: $:`选项${item.remark}`
 
       - component: el-select
         formItem:
@@ -164,12 +164,12 @@ fields:
           - component: el-option
             for: item in model.checks # 这个如何实现？
             props:
-              key: $:scope.item
-              label: $:`选项${scope.item}`
-              value: $:scope.item
+              key: $:item
+              label: $:`选项${item}`
+              value: $:item
           - component: el-option
             for: item in tabledata.data
             props:
-              key: $:scope.item.value
-              label: $:`选项${scope.item.remark}`
-              value: $:scope.item.name
+              key: $:item.value
+              label: $:`选项${item.remark}`
+              value: $:item.name

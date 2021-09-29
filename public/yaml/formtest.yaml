@@ -24,11 +24,16 @@ fields:
           style:
             width: auto
           placeholder: input value
+          # modelValue: $:GET(model, 'text')
+          # onUpdate:modelValue: $:(e)=>model.text=e
         formItem:
           prop: text
           label: aaa
       - component: el-select
         model: model.selected
+        # props:
+        #   modelValue: $:model.selected
+        #   onUpdate:modelValue: $:(e)=>model.selected=e
         formItem:
           prop: selected
           label: bbbb

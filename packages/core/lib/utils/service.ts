@@ -1,5 +1,5 @@
 import { assignArray, assignObject, isArray, isFunction, isObject } from './helper'
-import { rawData, compute, GET, SET } from './inner'
+import { rawData, compute, GET, SET, REF } from './inner'
 
 export const createServiceProvider = () => {
   const services = {
@@ -60,7 +60,7 @@ export const createServiceProvider = () => {
 
 export const mergeServices = (...services: any[]) => {
   const merged: any = {
-    functional: { SET, GET },
+    functional: { SET, GET, REF },
     proxy: [compute],
     renderHandlers: [],
     dataSource: {

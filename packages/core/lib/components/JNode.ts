@@ -1,5 +1,14 @@
-import { defineComponent, ref, watch, h, resolveDynamicComponent, toRaw, isVNode } from 'vue'
-import { assignObject, deepClone, isFunction, isObject, isArray } from '../utils/helper'
+import {
+  defineComponent,
+  ref,
+  watch,
+  h,
+  reactive,
+  resolveDynamicComponent,
+  toRaw,
+  isVNode,
+} from 'vue'
+import { assignObject, deepClone, isFunction, isObject } from '../utils/helper'
 import { useJRender, useScope } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
 import { getProxyDefine, injectProxy } from '../utils/proxy'
@@ -14,12 +23,11 @@ const JNode = defineComponent({
 
     const { scope } = useScope(props.scope || {})
 
-    const mergedContext = assignObject(context, { scope })
-
-    const sharedServices = { context: mergedContext, renderNode }
+    const sharedServices = { context, scope, renderNode }
 
     const injector = injectProxy({
-      context: mergedContext,
+      context,
+      scope,
       proxy: services.proxy.map((p) => p({ functional: services.functional })),
     })
 
@@ -60,7 +68,11 @@ const JNode = defineComponent({
         ).reduce((target, [key, value]) => {
           target[key] = (slotScope) =>
             (value as any).map((child) =>
-              isVNode(child) ? child : isObject(child) ? renderNode(child, slotScope) : child,
+              isVNode(child)
+                ? child
+                : isObject(child)
+                ? renderNode(getProxyDefine(child), slotScope)
+                : child,
             )
           return target
         }, {})
@@ -76,7 +88,7 @@ const JNode = defineComponent({
           renderField.value = null
           return
         }
-        pipeline(...beforeRenders)(assignObject(props.field))
+        pipeline(...beforeRenders)(assignObject(toRaw(props.field)))
       },
       { immediate: true },
     )

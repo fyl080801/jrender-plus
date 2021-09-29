@@ -20,6 +20,14 @@ export const isNumberLike = (value) => {
   return String(value).match(/^\d+$/)
 }
 
+export const isPromise = (target) => {
+  return (
+    !!target &&
+    (typeof target === 'object' || typeof target === 'function') &&
+    (isFunction(target.then) || isFunction(target.catch))
+  )
+}
+
 export const isDom = (target) => {
   const expr =
     typeof HTMLElement === 'object'
@@ -37,6 +45,8 @@ export const isDom = (target) => {
 
   return expr()
 }
+
+export const isDomElement = (target) => {}
 
 export const assignArray = (...targets) => {
   return targets.reduce((pre, cur) => {

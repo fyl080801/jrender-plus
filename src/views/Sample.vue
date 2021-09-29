@@ -92,7 +92,7 @@ fields:
 }
 
 onMounted(() => {
-  load('/yaml/sample.yaml')
+  load('/yaml/formtest.yaml')
 })
 </script>
 

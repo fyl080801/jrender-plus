@@ -1,4 +1,14 @@
-import { defineComponent, reactive, isReactive, watch, ref, computed, nextTick, h } from 'vue'
+import {
+  defineComponent,
+  reactive,
+  isReactive,
+  watch,
+  ref,
+  computed,
+  nextTick,
+  h,
+  toRefs,
+} from 'vue'
 import { assignArray, assignObject, deepClone, isArray, isFunction } from '../utils/helper'
 import { useJRender, useScope, useListener, useServices } from '../utils/mixins'
 import { injectProxy } from '../utils/proxy'
@@ -18,7 +28,7 @@ export default defineComponent({
     const services = useServices({ emit: ctx.emit })
 
     const context = reactive({
-      model: props.modelValue, // isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue),
+      model: isReactive(props.modelValue) ? props.modelValue : toRefs(props.modelValue),
     })
 
     const injector = injectProxy({
@@ -38,7 +48,7 @@ export default defineComponent({
     watch(
       () => props.modelValue,
       () => {
-        context.model = props.modelValue // isReactive(props.modelValue) ? props.modelValue : reactive(props.modelValue)
+        context.model = isReactive(props.modelValue) ? props.modelValue : toRefs(props.modelValue)
       },
       { immediate: true },
     )
