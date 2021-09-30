@@ -154,7 +154,10 @@ export const useRender = (app: App) => {
     })
 
     addFunction('NEXTTICK', (cb) => {
-      nextTick(cb)
+      return (...args) =>
+        nextTick(() => {
+          cb(...args)
+        })
     })
   })
 }

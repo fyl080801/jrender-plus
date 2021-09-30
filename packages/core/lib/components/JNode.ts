@@ -3,10 +3,11 @@ import {
   ref,
   watch,
   h,
-  reactive,
   resolveDynamicComponent,
   toRaw,
   isVNode,
+  nextTick,
+  onBeforeUnmount,
 } from 'vue'
 import { assignObject, deepClone, isFunction, isObject } from '../utils/helper'
 import { useJRender, useScope } from '../utils/mixins'
@@ -93,6 +94,12 @@ const JNode = defineComponent({
       { immediate: true },
     )
 
+    onBeforeUnmount(() => {
+      if (renderField.value?.props?.ref) {
+        delete context.refs[renderField.value.props.ref]
+      }
+    })
+
     return () => {
       try {
         if (!renderField.value?.component) {
@@ -116,7 +123,19 @@ const JNode = defineComponent({
           rending = render(rending)
         }
 
-        return h(resolveDynamicComponent(rending.component) as any, rending.props, rending.children)
+        const instance = h(
+          resolveDynamicComponent(rending.component) as any,
+          rending.props,
+          rending.children,
+        )
+
+        if (rending.props?.ref) {
+          nextTick(() => {
+            context.refs[rending.props?.ref] = instance.ref['i']?.refs[rending.props?.ref]
+          })
+        }
+
+        return instance
       } catch (ex) {
         console.warn(ex)
         return
