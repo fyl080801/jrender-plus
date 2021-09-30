@@ -22,6 +22,10 @@ export default defineComponent({
       refs: {},
     })
 
+    const isArrayRoot = computed(() => {
+      return isArray(props.fields)
+    })
+
     const injector = injectProxy({
       context,
       proxy: services.proxy.map((p) => p({ functional: services.functional })),
@@ -65,33 +69,11 @@ export default defineComponent({
     )
     //
 
-    //#region fields
-    const roots = ref([])
-    const updating = ref(false)
-    const isArrayRoot = computed(() => {
-      return isArray(roots.value)
-    })
-    watch(
-      () => props.fields,
-      (value) => {
-        updating.value = true
-
-        nextTick(() => {
-          roots.value = isArray(value) ? assignArray(value) : assignObject(value)
-          updating.value = false
-        })
-      },
-      { deep: false, immediate: true },
-    )
-    //#endregion
-
     useListener(props, { injector })
 
     return () =>
-      !updating.value
-        ? isArrayRoot.value
-          ? roots.value.map((field) => h(JNode, { field }))
-          : h(JNode, { field: roots })
-        : null
+      isArrayRoot.value
+        ? props.fields.map((field) => h(JNode, { field }))
+        : h(JNode, { field: props.fields })
   },
 })
