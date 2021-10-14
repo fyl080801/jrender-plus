@@ -13,7 +13,7 @@ export default defineComponent({
     dataSource: { type: Object, default: () => ({}) },
   },
   components: { JNode },
-  emits: ['setup'],
+  emits: ['update:modelValue', 'setup'],
   setup(props, ctx) {
     const services = useServices({ emit: ctx.emit })
 
@@ -41,11 +41,10 @@ export default defineComponent({
     useScope({})
 
     watch(
-      () => props.modelValue,
-      () => {
-        context.model = props.modelValue
+      () => context.model,
+      (value) => {
+        ctx.emit('update:modelValue', value)
       },
-      { immediate: true },
     )
 
     // dataSource
