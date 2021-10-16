@@ -3,13 +3,14 @@ import { assignObject } from '../utils/helper'
 import { useJRender, useScope } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
 import { getProxyDefine, injectProxy } from '../utils/proxy'
+import JSlot from './JSlot'
 
 const props = defineProps({
   field: { type: Object, required: true },
   scope: Object,
 })
 
-const { context, services } = useJRender()
+const { context, services, slots } = useJRender()
 
 const { scope } = useScope(props.scope || {})
 
@@ -45,6 +46,15 @@ if (props.field) {
   const beforeRenders = [
     ...services.beforeRenderHandlers,
     () => (field, next) => {
+      if (field?.component === 'slot') {
+        return next({
+          component: markRaw(JSlot),
+          props: { renderSlot: () => slots[field.name || 'default'](field.props || {}) },
+        })
+      }
+      next(field)
+    },
+    () => (field, next) => {
       renderField.value = injector(getProxyDefine(field))
       next(renderField.value)
     },
@@ -55,7 +65,7 @@ if (props.field) {
 </script>
 
 <script lang="ts">
-import { computed, defineComponent, ref, toRaw } from 'vue'
+import { computed, defineComponent, ref, toRaw, markRaw } from 'vue'
 
 export default defineComponent({
   name: 'JNode',

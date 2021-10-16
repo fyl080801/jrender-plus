@@ -14,6 +14,11 @@ const configs = reactive({
     },
   },
   fields: [
+    {
+      component: 'h1',
+      props: { style: { fontSize: '18px' } },
+      children: [{ component: 'slot', name: 'header' }],
+    },
     { component: 'p', rel: true, props: { innerText: 'sssss' } },
     {
       component: 'div',
@@ -32,6 +37,7 @@ const configs = reactive({
         },
       ],
     },
+    { component: 'slot' },
     {
       component: 'el-form',
       props: {
@@ -115,6 +121,11 @@ const onSetup = ({ onBeforeRender }) => {
     :data-source="configs.dataSource"
     v-model="model"
     @setup="onSetup"
-  />
+  >
+    <span>slot content</span>
+    <template v-slot:header>
+      <span>header content</span>
+    </template>
+  </JRender>
   <!-- <p>{{}}</p> -->
 </template>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useSlots } from 'vue'
 import { isArray, isFunction } from '../utils/helper'
 import { useJRender, useListener, useScope, useServices } from '../utils/mixins'
 import { injectProxy } from '../utils/proxy'
@@ -33,6 +34,7 @@ useJRender({
   context,
   services,
   props,
+  slots: useSlots(),
 })
 
 useScope({})
