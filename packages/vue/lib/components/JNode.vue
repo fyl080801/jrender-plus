@@ -68,7 +68,7 @@ export default defineComponent({
     :is="services.components[renderField.component] || renderField.component"
     v-bind="renderField.props"
   >
-    <template :slot="slot.name" v-for="slot in renderSlots">
+    <template #[slot.name] v-for="slot in renderSlots">
       <JNode v-for="child in slot.children" :field="child" :scope="scope" />
     </template>
   </component>
