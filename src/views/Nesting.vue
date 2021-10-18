@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { fetchYaml } from '@/utils/data'
-import { useRootRender } from '@jrender-plus/core'
+import { useRootRender } from '@jrender-plus/vue'
 import { reactive, onMounted, watch, onBeforeUnmount } from 'vue'
 
 useRootRender(({ onBeforeRender }) => {

@@ -20,12 +20,12 @@ export const createServiceProvider = () => {
         services.functional[name] = fx
       }
     },
-    onBeforeRender: (handler: (field) => void) => {
+    onBeforeRender: (handler) => {
       if (isFunction(handler)) {
         services.beforeRenderHandlers.push(handler)
       }
     },
-    onRender: (handler: (field) => unknown) => {
+    onRender: (handler) => {
       if (isFunction(handler)) {
         services.renderHandlers.push(handler)
       }

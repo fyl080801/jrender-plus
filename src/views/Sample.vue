@@ -23,7 +23,7 @@ const yamldata = ref('')
 const onSetup = ({ onBeforeRender }) => {
   // 外套表单项
   onBeforeRender(() => (field, next) => {
-    if (!field.formItem) {
+    if (!field?.formItem) {
       return next(field)
     }
 
@@ -36,7 +36,7 @@ const onSetup = ({ onBeforeRender }) => {
 
   // 渲染控制
   onBeforeRender(() => (field, next) => {
-    if (field.rel !== true) {
+    if (field?.rel !== true) {
       return next(field)
     }
 
@@ -123,7 +123,7 @@ onMounted(() => {
         :data-source="configs.datasource"
         @setup="onSetup"
       />
-      <p>{{ JSON.stringify(configs.model) }}</p>
+      <!-- <p>{{ JSON.stringify(configs.model) }}</p> -->
     </div>
   </div>
 </template>

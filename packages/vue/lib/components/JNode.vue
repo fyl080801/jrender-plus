@@ -6,7 +6,7 @@ import { getProxyDefine, injectProxy } from '../utils/proxy'
 import JSlot from './JSlot'
 
 const props = defineProps({
-  field: { type: Object, required: true },
+  field: Object,
   scope: Object,
 })
 
@@ -42,14 +42,19 @@ const renderSlots = computed<any>(() => {
   return result.map((item) => ({ name: item[0], children: item[1] }))
 })
 
-if (props.field) {
-  const beforeRenders = [
+const render = pipeline(
+  ...[
     ...services.beforeRenderHandlers,
     () => (field, next) => {
       if (field?.component === 'slot') {
         return next({
           component: markRaw(JSlot),
-          props: { renderSlot: () => slots[field.name || 'default'](field.props || {}) },
+          props: {
+            renderSlot: () => {
+              const renderer = slots[field.name || 'default']
+              return renderer && renderer(field.props || {})
+            },
+          },
         })
       }
       next(field)
@@ -58,14 +63,27 @@ if (props.field) {
       renderField.value = injector(getProxyDefine(field))
       next(renderField.value)
     },
-  ].map((provider) => provider(sharedServices))
+    ...services.renderHandlers,
+    () => (field, next) => {
+      renderField.value = field
+      next(renderField.value)
+    },
+  ].map((provider) => provider(sharedServices)),
+)
 
-  pipeline(...beforeRenders)(assignObject(toRaw(props.field)))
-}
+watch(
+  () => props.field,
+  () => {
+    if (props.field) {
+      render(assignObject(toRaw(props.field)))
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <script lang="ts">
-import { computed, defineComponent, ref, toRaw, markRaw } from 'vue'
+import { computed, defineComponent, ref, toRaw, markRaw, watch } from 'vue'
 
 export default defineComponent({
   name: 'JNode',

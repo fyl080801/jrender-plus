@@ -1,5 +1,5 @@
-import { App, nextTick, reactive, watch, onBeforeUnmount, effectScope } from 'vue'
-import JRender, { useGlobalRender, assignObject } from '@jrender-plus/core'
+import { App, nextTick, reactive, watch, markRaw, h } from 'vue'
+import JRender, { useGlobalRender, assignObject, JSlot, JNode } from '@jrender-plus/vue'
 import { deepGet } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
@@ -55,67 +55,46 @@ export const useRender = (app: App) => {
     })
 
     // for 表达式，还不知道怎么具体实现vue的for
-    onBeforeRender(({ context }) => {
-      let eff = null
-
-      onBeforeUnmount(() => {
-        eff?.stop()
+    onRender(({ context }) => (field, next) => {
+      field.children = field?.children?.map((child) => {
+        const matched = forAliasRE.exec(child.for)
+        if (matched) {
+          const [origin, props, source] = matched
+          return {
+            component: markRaw(JSlot),
+            props: {
+              renderSlot: () => {
+                return deepGet(context, source).map((item, index) =>
+                  h(JNode, {
+                    field: assignObject(child, { for: undefined }),
+                    scope: { [props]: item, index },
+                  }),
+                )
+              },
+            },
+          }
+        } else {
+          return child
+        }
       })
 
+      next(field)
+    })
+
+    onRender(() => {
       return (field, next) => {
-        eff = effectScope()
-        eff.run(() => {
-          field?.children?.forEach((child) => {
-            const matched = forAliasRE.exec(child.for)
-            if (matched) {
-              const [origin, props, source] = matched
-              watch(
-                () => deepGet(context, source),
-                () => {
-                  next({})
-                  nextTick(() => {
-                    next(assignObject(field))
-                  })
-                },
-                { deep: true },
-              )
+        next(field)
+        watch(
+          () => field?.props?.condition,
+          (value) => {
+            if (value !== undefined && !value) {
+              next()
+            } else {
+              next(field)
             }
-          })
-        })
-
-        next(assignObject(field))
+          },
+        )
       }
-    })
-
-    onRender(({ context, renderNode }) => {
-      return (field) => {
-        field.children = field.children?.reduce((target, child) => {
-          const matched = forAliasRE.exec(child.for)
-          if (child.for === undefined || !matched) {
-            target.push(child)
-          } else {
-            const [origin, props, source] = matched
-            deepGet(context, source)?.forEach((item) => {
-              target.push(
-                renderNode(assignObject(child, { for: undefined }), {
-                  [props]: item,
-                }),
-              )
-            })
-          }
-          return target
-        }, [])
-
-        return field
-      }
-    })
-
-    onRender(() => (field) => {
-      if (field.props?.condition !== undefined && !field.props.condition) {
-        return null
-      }
-
-      return field
     })
 
     addDataSource('fetch', (opt) => {
