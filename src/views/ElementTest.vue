@@ -1,5 +1,5 @@
 <script lang="ts">
-import { reactive, defineComponent, onUpdated } from 'vue'
+import { reactive, defineComponent } from 'vue'
 
 export default defineComponent({
   setup() {
@@ -14,10 +14,6 @@ export default defineComponent({
       text: [{ required: true }],
       selected: [{ required: true }],
     }
-
-    onUpdated(() => {
-      console.log('xxx')
-    })
 
     // openBlock()
     // createBlock('', {}, [])

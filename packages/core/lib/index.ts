@@ -1,5 +1,5 @@
-import { JRender, JNode } from './components'
-import { Plugin, h } from 'vue'
+import { JRender, JNode, JSlot } from './components'
+import { Plugin } from 'vue'
 
 const plugin: Plugin = {
   install: (app) => {
@@ -8,7 +8,7 @@ const plugin: Plugin = {
   ...JRender,
 }
 
-export { JRender, JNode }
+export { JRender, JNode, JSlot }
 export { useRootRender } from './utils/mixins'
 export { useGlobalRender } from './utils/service'
 export { getProxyDefine, injectProxy } from './utils/proxy'

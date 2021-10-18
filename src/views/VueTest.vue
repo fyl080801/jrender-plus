@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { JRender } from '@jrender-plus/vue'
+import { JRender } from '@jrender-plus/core'
 import { reactive } from 'vue'
 
 const model: any = reactive({})

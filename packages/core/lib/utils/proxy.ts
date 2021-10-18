@@ -1,5 +1,5 @@
 import { toRaw } from 'vue'
-import { assignObject } from '..'
+import { assignObject } from './helper'
 import { isArray, isDom, isFunction, isObject } from './helper'
 
 const PROXY = '__j_proxy'

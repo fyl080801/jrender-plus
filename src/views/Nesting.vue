@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { fetchYaml } from '@/utils/data'
-import { useRootRender } from '@jrender-plus/vue'
+import { useRootRender } from '@jrender-plus/core'
 import { reactive, onMounted, watch, onBeforeUnmount } from 'vue'
 
 useRootRender(({ onBeforeRender }) => {
@@ -17,7 +17,6 @@ useRootRender(({ onBeforeRender }) => {
     }
 
     onBeforeUnmount(() => {
-      // console.log('xxx')
       watchs.forEach((w) => w())
       watchs.length = 0
     })

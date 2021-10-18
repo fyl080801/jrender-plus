@@ -1,6 +1,5 @@
 import { App, nextTick, reactive, watch, markRaw, h } from 'vue'
-import JRender, { useGlobalRender, assignObject, JSlot, JNode } from '@jrender-plus/vue'
-import { deepGet } from '@jrender-plus/core'
+import JRender, { useGlobalRender, assignObject, JSlot, JNode, deepGet } from '@jrender-plus/core'
 
 export const useRender = (app: App) => {
   app.use(JRender)
