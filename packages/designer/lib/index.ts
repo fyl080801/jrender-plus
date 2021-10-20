@@ -1,1 +1,1 @@
-export { Document } from './components'
+// export { Document } from './components'

@@ -996,7 +996,7 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
-"@popperjs/core@^2.10.1", "@popperjs/core@^2.10.2":
+"@popperjs/core@^2.10.2":
   version "2.10.2"
   resolved "https://registry.npmmirror.com/@popperjs/core/download/@popperjs/core-2.10.2.tgz#0798c03351f0dea1a5a4cabddf26a55a7cbee590"
   integrity sha1-B5jAM1Hw3qGlpMq93yalWny+5ZA=
@@ -2252,13 +2252,13 @@ electron-to-chromium@^1.3.867:
   resolved "https://registry.npmmirror.com/electron-to-chromium/download/electron-to-chromium-1.3.871.tgz?cache=0&sync_timestamp=1634335999307&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Felectron-to-chromium%2Fdownload%2Felectron-to-chromium-1.3.871.tgz#6e87365fd72037a6c898fb46050ad4be3ac9ef62"
   integrity sha1-boc2X9cgN6bImPtGBQrUvjrJ72I=
 
-element-plus@^1.1.0-beta.21:
-  version "1.1.0-beta.21"
-  resolved "https://registry.npmmirror.com/element-plus/download/element-plus-1.1.0-beta.21.tgz#4b0232b908d1defee81ef94913c9479342d9d7e6"
-  integrity sha1-SwIyuQjR3v7oHvlJE8lHk0LZ1+Y=
+element-plus@^1.1.0-beta.24:
+  version "1.1.0-beta.24"
+  resolved "http://registry.m.jd.com/element-plus/download/element-plus-1.1.0-beta.24.tgz#858b05932ebc0be15419d3974d15be2a4f4b696c"
+  integrity sha1-hYsFky68C+FUGdOXTRW+Kk9LaWw=
   dependencies:
     "@element-plus/icons" "^0.0.11"
-    "@popperjs/core" "^2.10.1"
+    "@popperjs/core" "^2.10.2"
     "@vueuse/core" "~6.1.0"
     async-validator "^4.0.3"
     dayjs "^1.10.7"
@@ -2498,10 +2498,10 @@ eslint-plugin-prettier@^4.0.0:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-eslint-plugin-vue@^7.19.1:
-  version "7.19.1"
-  resolved "https://registry.npmmirror.com/eslint-plugin-vue/download/eslint-plugin-vue-7.19.1.tgz?cache=0&sync_timestamp=1633510320318&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Feslint-plugin-vue%2Fdownload%2Feslint-plugin-vue-7.19.1.tgz#435fb2ce712842a9530b28eacb883680e8eaa4f3"
-  integrity sha1-Q1+yznEoQqlTCyjqy4g2gOjqpPM=
+eslint-plugin-vue@^7.20.0:
+  version "7.20.0"
+  resolved "http://registry.m.jd.com/eslint-plugin-vue/download/eslint-plugin-vue-7.20.0.tgz#98c21885a6bfdf0713c3a92957a5afeaaeed9253"
+  integrity sha1-mMIYhaa/3wcTw6kpV6Wv6q7tklM=
   dependencies:
     eslint-utils "^2.1.0"
     natural-compare "^1.4.0"
@@ -6022,10 +6022,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite@^2.6.9:
-  version "2.6.9"
-  resolved "https://registry.npmmirror.com/vite/download/vite-2.6.9.tgz#3dd7c50181254480a9e815278a3f848cd3e4df3a"
-  integrity sha1-PdfFAYElRICp6BUnij+EjNPk3zo=
+vite@^2.6.10:
+  version "2.6.10"
+  resolved "http://registry.m.jd.com/vite/download/vite-2.6.10.tgz#7a4f420c6e2c7d9062c7f9ce4578a817c72b3842"
+  integrity sha1-ek9CDG4sfZBix/nORXioF8crOEI=
   dependencies:
     esbuild "^0.13.2"
     postcss "^8.3.8"

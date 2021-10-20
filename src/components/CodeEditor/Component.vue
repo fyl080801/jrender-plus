@@ -3,8 +3,8 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { editor } from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import { setDiagnosticsOptions } from 'monaco-yaml'
 import YamlWorker from 'monaco-editor/esm/vs/basic-languages/yaml/yaml?worker'
+import { setDiagnosticsOptions } from 'monaco-yaml'
 
 setDiagnosticsOptions({
   enableSchemaRequest: true,

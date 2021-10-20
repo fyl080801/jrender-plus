@@ -25,6 +25,7 @@ const config = defineConfig({
       output: {
         manualChunks: {
           jsonWorker: [`${prefix}/language/json/json.worker`],
+          yamlWorker: [`${prefix}/basic-languages/yaml/yaml?worker`],
           cssWorker: [`${prefix}/language/css/css.worker`],
           htmlWorker: [`${prefix}/language/html/html.worker`],
           tsWorker: [`${prefix}/language/typescript/ts.worker`],
