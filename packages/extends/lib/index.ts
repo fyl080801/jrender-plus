@@ -1,11 +1,11 @@
 import { watch, reactive, nextTick, markRaw, h } from 'vue'
-import { JNode, JSlot, deepGet, assignObject } from '@jrender-plus/core'
+import { JNode, JSlot, deepGet, assignObject, toPath } from '@jrender-plus/core'
 
 export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   // value
   onBeforeRender(() => (field, next) => {
     if (typeof field.value === 'string') {
-      const paths = field.value.split('.')
+      const paths = toPath(field.value)
       const path = [...paths].splice(1, paths.length)
 
       field.props ||= {}
@@ -20,7 +20,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   // model
   onBeforeRender(() => (field, next) => {
     if (typeof field.model === 'string') {
-      const paths = field.model.split('.')
+      const paths = toPath(field.model)
       const path = [...paths].splice(1, paths.length)
 
       field.props ||= {}
