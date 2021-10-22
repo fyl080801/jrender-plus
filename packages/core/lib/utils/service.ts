@@ -58,7 +58,7 @@ export const createServiceProvider = () => {
   return instance
 }
 
-export const mergeServices = (...services: any[]) => {
+export const mergeServices = (...services) => {
   const merged: any = {
     functional: { SET, GET, REF },
     proxy: [compute],

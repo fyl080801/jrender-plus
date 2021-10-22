@@ -1,9 +1,9 @@
 {
-  "name": "@jrender-plus/core",
+  "name": "@jrender-plus/element-plus",
   "version": "0.2.2",
   "description": "> TODO: description",
   "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
-  "homepage": "",
+  "homepage": "https://github.com/fyl080801/jrender-plus#readme",
   "license": "ISC",
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
@@ -12,14 +12,21 @@
     "test": "__tests__"
   },
   "files": [
-    "dist"
+    "lib"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fyl080801/jrender-plus.git"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "dist": "yarn clean && vite build"
+  },
+  "bugs": {
+    "url": "https://github.com/fyl080801/jrender-plus/issues"
   },
   "gitHead": "085db3930690e9b25a8cbd8bef674354d34bc96d"
 }
