@@ -1,0 +1,29 @@
+{
+  "name": "@jrender-plus/element-plus",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
+  "homepage": "https://github.com/fyl080801/jrender-plus#readme",
+  "license": "ISC",
+  "main": "lib/element-plus.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fyl080801/jrender-plus.git"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "bugs": {
+    "url": "https://github.com/fyl080801/jrender-plus/issues"
+  }
+}

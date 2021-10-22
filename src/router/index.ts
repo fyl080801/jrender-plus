@@ -10,12 +10,11 @@ export const router = createRouter({
       redirect: '/demos/sample',
       children: [
         { path: 'sample', name: 'sample', component: () => import('@/views/Sample.vue') },
-        {
-          path: 'designer',
-          name: 'designer',
-          component: () => import('@/views/designer/Layout.vue'),
-        },
-
+        // {
+        //   path: 'designer',
+        //   name: 'designer',
+        //   component: () => import('@/views/designer/Layout.vue'),
+        // },
         {
           path: 'nesting',
           name: 'nesting',
