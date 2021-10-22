@@ -9,7 +9,7 @@
       "ignoreChanges": [".gitignore", ".eslintignore", "*.log", "*.md"]
     },
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": false
     }
   }
 }
