@@ -27,6 +27,7 @@
     "url": "https://github.com/fyl080801/jrender-plus/issues"
   },
   "dependencies": {
-    "@jrender-plus/core": "^0.1.0"
-  }
+    "@jrender-plus/core": "^0.2.0"
+  },
+  "gitHead": "085db3930690e9b25a8cbd8bef674354d34bc96d"
 }

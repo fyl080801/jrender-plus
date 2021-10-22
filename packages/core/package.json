@@ -1,6 +1,6 @@
 {
   "name": "@jrender-plus/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "> TODO: description",
   "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
   "homepage": "",
@@ -19,5 +19,6 @@
   },
   "scripts": {
     "build": "vite build"
-  }
+  },
+  "gitHead": "085db3930690e9b25a8cbd8bef674354d34bc96d"
 }
