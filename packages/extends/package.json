@@ -22,7 +22,8 @@
     "url": "git+https://github.com/fyl080801/jrender-plus.git"
   },
   "scripts": {
-    "build": "vite build"
+    "clean": "rimraf dist",
+    "dist": "yarn clean && vite build"
   },
   "bugs": {
     "url": "https://github.com/fyl080801/jrender-plus/issues"

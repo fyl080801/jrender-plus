@@ -7,9 +7,17 @@
   ],
   "scripts": {
     "dev": "vite",
+    "serve": "vite preview",
     "build": "vite build",
-    "build:all": "lerna run build && vite build",
-    "serve": "vite preview"
+    "build:all": "yarn run dist && vite build",
+    "clean": "yarn workspaces run clean",
+    "dist": "yarn workspaces run dist",
+    "publish": "lerna publish",
+    "prepack": "yarn run dist",
+    "postinstall": "husky install",
+    "postpublish": "yarn run clean",
+    "commit": "git add . && git status && git-cz",
+    "lint-staged": "lint-staged"
   },
   "dependencies": {
     "@popperjs/core": "^2.10.2",
@@ -36,7 +44,9 @@
     "eslint": "^8.0.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^7.20.0",
+    "husky": "^7.0.4",
     "lerna": "^4.0.0",
+    "lint-staged": "^11.2.3",
     "postcss": "^8.3.10",
     "prettier": "^2.4.1",
     "sass": "^1.42.1",
@@ -49,5 +59,13 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.(vue|tsx|js|ts)": [
+      "prettier --write"
+    ]
   }
 }

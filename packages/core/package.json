@@ -18,7 +18,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vite build"
+    "clean": "rimraf dist",
+    "dist": "yarn clean && vite build"
   },
   "gitHead": "085db3930690e9b25a8cbd8bef674354d34bc96d"
 }
