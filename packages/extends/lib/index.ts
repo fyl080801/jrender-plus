@@ -67,6 +67,10 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
 
   // for 表达式，还不知道怎么具体实现vue的for
   onRender(({ context }) => (field, next) => {
+    if (!field) {
+      return next(field)
+    }
+
     field.children = field?.children?.map((child) => {
       const matched = forAliasRE.exec(child.for)
       if (matched) {
