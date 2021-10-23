@@ -2,6 +2,48 @@ import { watch, reactive, nextTick, markRaw, h } from 'vue'
 import { JNode, JSlot, deepGet, assignObject, toPath } from '@jrender-plus/core'
 
 export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
+  // type 简写
+  onBeforeRender(() => (field, next) => {
+    if (field.type !== undefined) {
+      field.component = field.type
+    }
+
+    next(field)
+  })
+
+  // text
+  onBeforeRender(() => (field, next) => {
+    if (field.text !== undefined) {
+      field.props = field.props || {}
+      field.props.innerText = field.text
+    }
+
+    next(field)
+  })
+
+  // 条件显示
+  onRender(() => {
+    let watcher = null
+
+    return (field, next) => {
+      if (watcher) {
+        watcher()
+      }
+
+      watcher = watch(
+        () => field.condition,
+        (value) => {
+          if (value !== undefined && !value) {
+            next()
+          } else {
+            next(field)
+          }
+        },
+        { immediate: true },
+      )
+    }
+  })
+
   // value
   onBeforeRender(() => (field, next) => {
     if (typeof field.value === 'string') {
@@ -45,22 +87,6 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
       delete field.models
     }
     next(field)
-  })
-
-  onRender(() => {
-    return (field, next) => {
-      next(field)
-      watch(
-        () => field?.props?.condition,
-        (value) => {
-          if (value !== undefined && !value) {
-            next()
-          } else {
-            next(field)
-          }
-        },
-      )
-    }
   })
 
   const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/

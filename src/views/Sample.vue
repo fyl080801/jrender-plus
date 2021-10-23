@@ -93,7 +93,7 @@ onMounted(() => {
           导出当前布局
         </button>
       </div>
-      <div class="flex flex-1">
+      <div class="flex flex-1 h-full">
         <div class="flex-1">
           <CodeEditor
             :model-value="yamldata"
@@ -102,7 +102,7 @@ onMounted(() => {
             class="w-full h-full"
           />
         </div>
-        <div class="flex-1 overflow-auto">
+        <div class="flex-1 h-full overflow-auto">
           <JRender
             v-if="!loading"
             v-model="configs.model"

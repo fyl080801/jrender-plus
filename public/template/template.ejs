@@ -28,6 +28,48 @@
         ({ onBeforeRender, onRender, addFunction, addDataSource }) => {
           const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
+          // type 简写
+          onBeforeRender(() => (field, next) => {
+            if (field.type !== undefined) {
+              field.component = field.type
+            }
+
+            next(field)
+          })
+
+          // text
+          onBeforeRender(() => (field, next) => {
+            if (field.text !== undefined) {
+              field.props = field.props || {}
+              field.props.innerText = field.text
+            }
+
+            next(field)
+          })
+
+          // 条件显示
+          onRender(() => {
+            let watcher = null
+
+            return (field, next) => {
+              if (watcher) {
+                watcher()
+              }
+
+              watcher = Vue.watch(
+                () => field.condition,
+                (value) => {
+                  if (value !== undefined && !value) {
+                    next()
+                  } else {
+                    next(field)
+                  }
+                },
+                { immediate: true },
+              )
+            }
+          })
+
           // value
           onBeforeRender(() => (field, next) => {
             if (typeof field.value === "string") {
@@ -106,22 +148,6 @@
             next(field)
           })
 
-          onRender(() => {
-            return (field, next) => {
-              next(field)
-              Vue.watch(
-                () => field?.props?.condition,
-                (value) => {
-                  if (value !== undefined && !value) {
-                    next()
-                  } else {
-                    next(field)
-                  }
-                }
-              )
-            }
-          })
-
           // 外套表单项
           onBeforeRender(() => (field, next) => {
             if (!field?.formItem) {
@@ -129,13 +155,16 @@
             }
 
             const formItem = field.formItem
+            const condition = field.condition
 
             delete field.formItem
+            delete field.condition
 
             return next({
-              component: "el-form-item",
+              component: 'el-form-item',
+              condition,
               props: formItem,
-              children: [field]
+              children: [field],
             })
           })
 

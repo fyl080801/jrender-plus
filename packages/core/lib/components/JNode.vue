@@ -75,7 +75,7 @@ watch(
   () => props.field,
   () => {
     if (props.field) {
-      render(assignObject(toRaw(props.field)))
+      render(assignObject(getProxyDefine(toRaw(props.field))))
     }
   },
   { immediate: true },

@@ -62,6 +62,7 @@ export const mergeServices = (...services) => {
   const merged: any = {
     functional: { SET, GET, REF },
     proxy: [compute],
+    beforeRenderHandlers: [],
     renderHandlers: [],
     dataSource: {
       default: rawData,
