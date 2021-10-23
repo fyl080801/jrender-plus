@@ -12,7 +12,7 @@
     />
     <!-- import JavaScript -->
     <script src="https://unpkg.com/element-plus"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@jrender-plus/core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jrender-plus/core@0.2.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
   </head>
   <body>
@@ -76,7 +76,7 @@
               const paths = field.value.split(".")
               const path = [...paths].splice(1, paths.length)
 
-              field.props ||= {}
+              field.props = field.props || {}
               field.props.value = `$:${field.value}`
               field.props.onInput = `$:(e) => SET(${paths[0]}, '${path.join(
                 "."
@@ -123,6 +123,10 @@
 
           // for 表达式，还不知道怎么具体实现vue的for
           onRender(({ context }) => (field, next) => {
+            if (!field) {
+              return next(field)
+            }
+
             field.children = field?.children?.map((child) => {
               const matched = forAliasRE.exec(child.for)
               if (matched) {
