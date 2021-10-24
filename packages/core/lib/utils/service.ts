@@ -21,14 +21,48 @@ export const createServiceProvider = () => {
       }
     },
     onBeforeRender: (handler) => {
+      const hook = { name: '', dependencies: [], handler }
+
       if (isFunction(handler)) {
-        services.beforeRenderHandlers.push(handler)
+        services.beforeRenderHandlers.push(hook)
       }
+
+      const instance = {
+        name: (name) => {
+          hook.name = name
+          return instance
+        },
+        depend: (name) => {
+          if (hook.dependencies.indexOf(name) < 0) {
+            hook.dependencies.push(name)
+          }
+          return instance
+        },
+      }
+
+      return instance
     },
     onRender: (handler) => {
+      const hook = { name: '', dependencies: [], handler }
+
       if (isFunction(handler)) {
-        services.renderHandlers.push(handler)
+        services.renderHandlers.push(hook)
       }
+
+      const instance = {
+        name: (name) => {
+          hook.name = name
+          return instance
+        },
+        depend: (name) => {
+          if (hook.dependencies.indexOf(name) < 0) {
+            hook.dependencies.push(name)
+          }
+          return instance
+        },
+      }
+
+      return instance
     },
     addProxy: (handler) => {
       if (isFunction(handler)) {

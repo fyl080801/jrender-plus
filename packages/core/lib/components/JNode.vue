@@ -44,7 +44,7 @@ const renderSlots = computed<any>(() => {
 
 const render = pipeline(
   ...[
-    ...services.beforeRenderHandlers,
+    ...services.beforeRenderHandlers.map((item) => item.handler),
     () => (field, next) => {
       if (field?.component === 'slot') {
         return next({
@@ -63,7 +63,7 @@ const render = pipeline(
       renderField.value = injector(getProxyDefine(field))
       next(renderField.value)
     },
-    ...services.renderHandlers,
+    ...services.renderHandlers.map((item) => item.handler),
     () => (field, next) => {
       renderField.value = field
       next(renderField.value)
