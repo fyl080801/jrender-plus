@@ -1,5 +1,39 @@
-import { assignArray, assignObject, isArray, isFunction, isObject } from './helper'
+import { assignArray, assignObject, isArray, isFunction, isObject, uuid } from './helper'
 import { rawData, compute, GET, SET, REF } from './inner'
+
+const sortHandlers = (handlers) => {
+  const maps = handlers.reduce((target, item) => {
+    target[item.name] = item
+    return target
+  }, {})
+  const dependencies = handlers.reduce((target, item) => {
+    target[item.name] = item.dependencies
+    return target
+  }, {})
+  const used = new Set()
+  const result = []
+
+  let keys = Object.keys(dependencies)
+  let items
+  let length
+
+  do {
+    length = keys.length
+    items = []
+    keys = keys.filter((k) => {
+      if (!dependencies[k].every(Set.prototype.has, used)) {
+        return true
+      }
+      items.push(k)
+    })
+    result.push(...items)
+    items.forEach(Set.prototype.add, used)
+  } while (keys.length && keys.length !== length)
+
+  result.push(...keys)
+
+  return result.map((key) => maps[key])
+}
 
 export const createServiceProvider = () => {
   const services = {
@@ -21,7 +55,7 @@ export const createServiceProvider = () => {
       }
     },
     onBeforeRender: (handler) => {
-      const hook = { name: '', dependencies: [], handler }
+      const hook = { name: `BR_${uuid(5)}`, dependencies: [], handler }
 
       if (isFunction(handler)) {
         services.beforeRenderHandlers.push(hook)
@@ -43,7 +77,7 @@ export const createServiceProvider = () => {
       return instance
     },
     onRender: (handler) => {
-      const hook = { name: '', dependencies: [], handler }
+      const hook = { name: `R_${uuid(5)}`, dependencies: [], handler }
 
       if (isFunction(handler)) {
         services.renderHandlers.push(hook)
@@ -114,6 +148,10 @@ export const mergeServices = (...services) => {
       }
     })
   })
+
+  merged.beforeRenderHandlers = sortHandlers(merged.beforeRenderHandlers)
+
+  merged.renderHandlers = sortHandlers(merged.renderHandlers)
 
   return merged
 }
