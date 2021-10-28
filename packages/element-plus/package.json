@@ -1,6 +1,6 @@
 {
   "name": "@jrender-plus/element-plus",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "> TODO: description",
   "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
   "homepage": "https://github.com/fyl080801/jrender-plus#readme",
@@ -28,5 +28,5 @@
   "bugs": {
     "url": "https://github.com/fyl080801/jrender-plus/issues"
   },
-  "gitHead": "085db3930690e9b25a8cbd8bef674354d34bc96d"
+  "gitHead": "3e4f1ca5fe8124954bd722ed44d9a2df14e6dae8"
 }

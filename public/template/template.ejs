@@ -12,7 +12,7 @@
     />
     <!-- import JavaScript -->
     <script src="https://unpkg.com/element-plus"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@jrender-plus/core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jrender-plus/core@0.2.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
   </head>
   <body>
@@ -28,13 +28,55 @@
         ({ onBeforeRender, onRender, addFunction, addDataSource }) => {
           const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
+          // type 简写
+          onBeforeRender(() => (field, next) => {
+            if (field.type !== undefined) {
+              field.component = field.type
+            }
+
+            next(field)
+          })
+
+          // text
+          onBeforeRender(() => (field, next) => {
+            if (field.text !== undefined) {
+              field.props = field.props || {}
+              field.props.innerText = field.text
+            }
+
+            next(field)
+          })
+
+          // 条件显示
+          onRender(() => {
+            let watcher = null
+
+            return (field, next) => {
+              if (watcher) {
+                watcher()
+              }
+
+              watcher = Vue.watch(
+                () => field.condition,
+                (value) => {
+                  if (value !== undefined && !value) {
+                    next()
+                  } else {
+                    next(field)
+                  }
+                },
+                { immediate: true },
+              )
+            }
+          })
+
           // value
           onBeforeRender(() => (field, next) => {
             if (typeof field.value === "string") {
               const paths = field.value.split(".")
               const path = [...paths].splice(1, paths.length)
 
-              field.props ||= {}
+              field.props = field.props || {}
               field.props.value = `$:${field.value}`
               field.props.onInput = `$:(e) => SET(${paths[0]}, '${path.join(
                 "."
@@ -81,6 +123,10 @@
 
           // for 表达式，还不知道怎么具体实现vue的for
           onRender(({ context }) => (field, next) => {
+            if (!field) {
+              return next(field)
+            }
+
             field.children = field?.children?.map((child) => {
               const matched = forAliasRE.exec(child.for)
               if (matched) {
@@ -106,22 +152,6 @@
             next(field)
           })
 
-          onRender(() => {
-            return (field, next) => {
-              next(field)
-              Vue.watch(
-                () => field?.props?.condition,
-                (value) => {
-                  if (value !== undefined && !value) {
-                    next()
-                  } else {
-                    next(field)
-                  }
-                }
-              )
-            }
-          })
-
           // 外套表单项
           onBeforeRender(() => (field, next) => {
             if (!field?.formItem) {
@@ -129,13 +159,16 @@
             }
 
             const formItem = field.formItem
+            const condition = field.condition
 
             delete field.formItem
+            delete field.condition
 
             return next({
-              component: "el-form-item",
+              component: 'el-form-item',
+              condition,
               props: formItem,
-              children: [field]
+              children: [field],
             })
           })
 

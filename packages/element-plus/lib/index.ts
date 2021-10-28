@@ -6,10 +6,17 @@ export default ({ onBeforeRender }) => {
     }
 
     const formItem = field.formItem
+    const condition = field.condition
 
     delete field.formItem
+    delete field.condition
 
-    return next({ component: 'el-form-item', props: formItem, children: [field] })
+    return next({
+      component: 'el-form-item',
+      condition,
+      props: formItem,
+      children: [field],
+    })
   })
 
   // 渲染控制

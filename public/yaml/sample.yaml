@@ -149,8 +149,8 @@ fields:
                   innerText: $:`选项${item.remark}`
 
       - component: el-select
+        condition: $:!model.checked
         formItem:
-          condition: $:!model.checked
           label: selection
         model: model.selection
         children:

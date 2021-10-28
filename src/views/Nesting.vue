@@ -3,8 +3,8 @@ import { fetchYaml } from '@/utils/data'
 import { useRootRender } from '@jrender-plus/core'
 import { reactive, onMounted, watch, onBeforeUnmount } from 'vue'
 
-useRootRender(({ onBeforeRender }) => {
-  onBeforeRender(() => {
+useRootRender(({ onRender }) => {
+  onRender(() => {
     const customs = {}
     const watchs = []
 
@@ -46,6 +46,8 @@ useRootRender(({ onBeforeRender }) => {
           { immediate: true },
         ),
       )
+
+      next()
     }
   })
 })
