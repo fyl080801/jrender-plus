@@ -21,5 +21,5 @@
     "clean": "rimraf dist",
     "dist": "yarn clean && vite build"
   },
-  "gitHead": "3e4f1ca5fe8124954bd722ed44d9a2df14e6dae8"
+  "gitHead": "1c9316e0b6df232fb6047b3fd4f165d515cb5cfa"
 }
