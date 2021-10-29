@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { App } from 'vue'
+import { project } from './modules/project'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -34,6 +35,7 @@ export const router = createRouter({
       path: '/',
       redirect: '/demos',
     },
+    ...project,
   ],
 })
 

@@ -4,6 +4,7 @@ import { editor } from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import YamlWorker from 'monaco-editor/esm/vs/basic-languages/yaml/yaml?worker'
+import JsWorker from 'monaco-editor/esm/vs/basic-languages/javascript/javascript?worker'
 import { setDiagnosticsOptions } from 'monaco-yaml'
 
 setDiagnosticsOptions({
@@ -20,6 +21,9 @@ setDiagnosticsOptions({
     }
     if (label === 'yaml') {
       return new YamlWorker()
+    }
+    if (label === 'javascript') {
+      return new JsWorker()
     }
     return new EditorWorker()
   },
@@ -57,6 +61,7 @@ onMounted(async () => {
     automaticLayout: true,
     scrollBeyondLastLine: false,
     language: props.language,
+    contextmenu: false,
   })
 
   instance?.onDidChangeModelContent(() => {
