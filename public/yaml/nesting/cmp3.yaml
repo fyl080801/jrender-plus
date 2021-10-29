@@ -7,6 +7,12 @@ fields:
         border: 1px solid blue
         textAlign: center
     children:
+      - component: h2
+        props:
+          style:
+            fontSize: 18px
+          innerText: $:prop1.text
+
       - component: h3
         children:
           - component: span

@@ -8,12 +8,20 @@ fields:
       - component: h1
         props:
           innerText: 动态嵌套
-      - component: custom
+      - component: input
+        value: model.text1
         props:
-          url: /yaml/nesting/cmp1.yaml
+          style: 
+            border: 1px solid black
+
       - component: custom
+        url: /yaml/nesting/cmp1.yaml
+
+      - component: custom
+        url: /yaml/nesting/cmp2.yaml
         props:
-          url: /yaml/nesting/cmp2.yaml
+          prop1:
+            text: $:model.text1
         children:
           - component: span
             props:
@@ -39,8 +47,10 @@ fields:
               onClick: $:() => model.cmpurl = model.text
 
       - component: custom
+        url: $:model.cmpurl
         props:
-          url: $:model.cmpurl
+          prop1:
+            text: $:model.text1
         children:
           - component: span
             props:

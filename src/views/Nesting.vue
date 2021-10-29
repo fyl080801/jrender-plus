@@ -9,11 +9,19 @@ useRootRender(({ onRender }) => {
     const watchs = []
 
     const getCustom = (field, url) => {
-      return {
+      const nf = {
         component: 'JRender',
-        props: { fields: customs[url].fields },
+        props: {
+          fields: customs[url].fields,
+          dataSource: Object.keys(field.props || {}).reduce((target, key) => {
+            target[key] = { props: field.props[key] }
+            return target
+          }, {}),
+        },
         children: field.children,
       }
+
+      return nf
     }
 
     onBeforeUnmount(() => {
@@ -28,7 +36,7 @@ useRootRender(({ onRender }) => {
 
       watchs.push(
         watch(
-          () => field.props?.url,
+          () => field.url,
           (url) => {
             if (!url) {
               return

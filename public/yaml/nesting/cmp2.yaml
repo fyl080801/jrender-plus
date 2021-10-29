@@ -18,3 +18,6 @@ fields:
             props:
               innerText: content
           - component: slot
+      - component: span
+        props:
+          innerText: $:prop1.text
