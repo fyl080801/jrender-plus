@@ -16,6 +16,9 @@
     <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
   </head>
   <body>
+    <div id="config-data" style="visibility: collapse; width: 0; height: 0;">
+      <%- model %>
+    </div>
     <div id="app">
       <jrender
         :fields="configs.fields"
@@ -65,7 +68,7 @@
                     next(field)
                   }
                 },
-                { immediate: true },
+                { immediate: true }
               )
             }
           })
@@ -167,10 +170,10 @@
             delete field.condition
 
             return next({
-              component: 'el-form-item',
+              component: "el-form-item",
               condition,
               props: formItem,
-              children: [field],
+              children: [field]
             })
           })
 
@@ -247,10 +250,13 @@
 
       const app = Vue.createApp({
         setup() {
+          const appElm = document.getElementById("config-data")
+          const configText = appElm.innerHTML
+          appElm.remove()
           return {
             configs: Object.assign(
               { fields: [], datasource: {}, listeners: [] },
-              <%- model %>
+              JSON.parse(configText)
             )
           }
         }
