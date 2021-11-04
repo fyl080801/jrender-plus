@@ -132,17 +132,19 @@
               if (matched) {
                 const [origin, props, source] = matched
                 return {
-                  component: Vue.markRaw(JRenderPlus.JSlot),
-                  props: {
-                    renderSlot: () => {
-                      return _.get(context, source).map((item, index) =>
-                        Vue.h(JRenderPlus.JNode, {
-                          field: Object.assign({}, child, { for: undefined }),
-                          scope: { [props]: item, index }
-                        })
-                      )
-                    }
-                  }
+                  component: Vue.markRaw(
+                    Vue.defineComponent({
+                      setup() {
+                        return () =>
+                          _.get(context, source)?.map((item, index) => {
+                            return Vue.h(JRenderPlus.JNode, {
+                              field: Object.assign(child, { for: undefined }),
+                              scope: { [prop]: item, index },
+                            })
+                          })
+                      },
+                    }),
+                  ),
                 }
               } else {
                 return child

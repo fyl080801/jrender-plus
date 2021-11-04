@@ -1,5 +1,5 @@
-import { watch, reactive, nextTick, markRaw, h } from 'vue'
-import { JNode, JSlot, deepGet, assignObject, toPath } from '@jrender-plus/core'
+import { watch, reactive, nextTick, markRaw, h, defineComponent } from 'vue'
+import { JNode, deepGet, assignObject, toPath } from '@jrender-plus/core'
 
 export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   // type 简写
@@ -92,34 +92,38 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
   // for 表达式，还不知道怎么具体实现vue的for
-  onRender(({ context }) => (field, next) => {
-    if (!field) {
-      return next(field)
-    }
-
-    field.children = field?.children?.map((child) => {
-      const matched = forAliasRE.exec(child.for)
-      if (matched) {
-        const [origin, props, source] = matched
-        return {
-          component: markRaw(JSlot),
-          props: {
-            renderSlot: () => {
-              return deepGet(context, source).map((item, index) =>
-                h(JNode, {
-                  field: assignObject(child, { for: undefined }),
-                  scope: { [props]: item, index },
-                }),
-              )
-            },
-          },
-        }
-      } else {
-        return child
+  onRender(({ context }) => {
+    return (field, next) => {
+      if (!field) {
+        return next(field)
       }
-    })
 
-    next(field)
+      field.children = field?.children?.map((child) => {
+        const matched = forAliasRE.exec(child.for)
+        if (matched) {
+          const [origin, prop, source] = matched
+          return {
+            component: markRaw(
+              defineComponent({
+                setup() {
+                  return () =>
+                    deepGet(context, source)?.map((item, index) => {
+                      return h(JNode, {
+                        field: assignObject(child, { for: undefined }),
+                        scope: { [prop]: item, index },
+                      })
+                    })
+                },
+              }),
+            ),
+          }
+        } else {
+          return child
+        }
+      })
+
+      next(field)
+    }
   })
 
   addDataSource('fetch', (opt) => {

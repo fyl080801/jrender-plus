@@ -8,11 +8,12 @@ import JSlot from './JSlot'
 const props = defineProps({
   field: Object,
   scope: Object,
+  temp: Object,
 })
 
 const { context, services, slots } = useJRender()
 
-const { scope } = useScope(props.scope || {})
+const { scope } = useScope(assignObject(props.scope || {}, props.temp))
 
 const sharedServices = { context, scope, props }
 
@@ -71,6 +72,10 @@ const render = pipeline(
   ].map((provider) => provider(sharedServices)),
 )
 
+const getTemplateScope = (s) => {
+  return Object.keys(s || {}).length ? s : undefined
+}
+
 watch(
   () => props.field,
   () => {
@@ -83,7 +88,7 @@ watch(
 </script>
 
 <script lang="ts">
-import { computed, defineComponent, ref, toRaw, markRaw, watch } from 'vue'
+import { computed, defineComponent, ref, markRaw, toRaw, watch } from 'vue'
 
 export default defineComponent({
   name: 'JNode',
@@ -96,11 +101,12 @@ export default defineComponent({
     :is="services.components[renderField.component] || renderField.component"
     v-bind="renderField.props"
   >
-    <template #[slot.name]="templateScope" v-for="slot in renderSlots">
+    <template v-for="slot in renderSlots" #[slot.name]="templateScope">
       <JNode
         v-for="child in slot.children"
         :field="child"
-        :scope="{ ...scope, ...templateScope }"
+        :scope="scope"
+        :temp="getTemplateScope(templateScope)"
       />
     </template>
   </component>
