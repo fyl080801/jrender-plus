@@ -1062,9 +1062,9 @@
   integrity sha1-zLkURTYBeaBOf+av94wA/8Hur4I=
 
 "@types/js-yaml@^4.0.4":
-  version "4.0.3"
-  resolved "https://registry.npmmirror.com/@types/js-yaml/download/@types/js-yaml-4.0.3.tgz#9f33cd6fbf0d5ec575dc8c8fc69c7fec1b4eb200"
-  integrity sha1-nzPNb78NXsV13IyPxpx/7BtOsgA=
+  version "4.0.4"
+  resolved "http://registry.m.jd.com/@types/js-yaml/download/@types/js-yaml-4.0.4.tgz#cc38781257612581a1a0eb25f1709d2b06812fce"
+  integrity sha1-zDh4EldhJYGhoOsl8XCdKwaBL84=
 
 "@types/json-schema@^7.0.0":
   version "7.0.9"
