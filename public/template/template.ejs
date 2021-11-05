@@ -130,7 +130,7 @@
             field.children = field?.children?.map((child) => {
               const matched = forAliasRE.exec(child.for)
               if (matched) {
-                const [origin, props, source] = matched
+                const [origin, prop, source] = matched
                 return {
                   component: Vue.markRaw(
                     Vue.defineComponent({
