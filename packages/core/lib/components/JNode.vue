@@ -15,7 +15,14 @@ const { context, services, slots } = useJRender()
 
 const { scope } = useScope(assignObject(props.scope || {}, props.temp))
 
-const sharedServices = { context, scope, props }
+const sharedServices = {
+  context,
+  scope,
+  props,
+  render: () => {
+    render(assignObject(getProxyDefine(toRaw(props.field))))
+  },
+}
 
 const injector = injectProxy({
   context,
