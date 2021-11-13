@@ -6,31 +6,17 @@ const config = defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'lib'),
-      name: 'JRPElementPlus',
+      name: 'JRenderPlusElement',
       fileName: (format) => `index.${format}.js`,
     },
     sourcemap: true,
     rollupOptions: {
       external: ['vue'],
-      output: [
-        {
-          format: 'es',
-          esModule: true,
-          exports: 'named',
-          globals: {
-            vue: 'Vue',
-          },
+      output: {
+        globals: {
+          vue: 'Vue',
         },
-        {
-          format: 'umd',
-          inlineDynamicImports: true,
-          interop: 'default',
-          exports: 'named',
-          globals: {
-            vue: 'Vue',
-          },
-        },
-      ],
+      },
     },
   },
 })

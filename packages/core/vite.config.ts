@@ -12,25 +12,11 @@ const config = defineConfig({
     sourcemap: true,
     rollupOptions: {
       external: ['vue'],
-      output: [
-        {
-          format: 'es',
-          esModule: true,
-          exports: 'named',
-          globals: {
-            vue: 'Vue',
-          },
+      output: {
+        globals: {
+          vue: 'Vue',
         },
-        {
-          format: 'umd',
-          inlineDynamicImports: true,
-          interop: 'default',
-          exports: 'named',
-          globals: {
-            vue: 'Vue',
-          },
-        },
-      ],
+      },
     },
   },
 })

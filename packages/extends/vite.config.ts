@@ -11,26 +11,13 @@ const config = defineConfig({
     },
     sourcemap: true,
     rollupOptions: {
-      external: ['vue'],
-      output: [
-        {
-          format: 'es',
-          esModule: true,
-          exports: 'named',
-          globals: {
-            vue: 'Vue',
-          },
+      external: ['vue', '@jrender-plus/core'],
+      output: {
+        globals: {
+          vue: 'Vue',
+          '@jrender-plus/core': 'JRenderPlus',
         },
-        {
-          format: 'umd',
-          inlineDynamicImports: true,
-          interop: 'default',
-          exports: 'named',
-          globals: {
-            vue: 'Vue',
-          },
-        },
-      ],
+      },
     },
   },
 })
