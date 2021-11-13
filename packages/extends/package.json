@@ -1,6 +1,6 @@
 {
   "name": "@jrender-plus/extends",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "> TODO: description",
   "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
   "homepage": "https://github.com/fyl080801/jrender-plus#readme",
@@ -35,7 +35,7 @@
     "url": "https://github.com/fyl080801/jrender-plus/issues"
   },
   "dependencies": {
-    "@jrender-plus/core": "^0.3.1"
+    "@jrender-plus/core": "^0.3.2"
   },
   "gitHead": "1c9316e0b6df232fb6047b3fd4f165d515cb5cfa"
 }
