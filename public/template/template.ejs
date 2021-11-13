@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JRender Plus</title>
-    <script src="https://unpkg.com/vue@next"></script>
     <!-- import CSS -->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/element-plus/dist/index.css"
+      href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css"
     />
     <!-- import JavaScript -->
-    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jrender-plus/core"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash"></script>
   </head>
@@ -24,227 +24,6 @@
       />
     </div>
     <script type="module">
-      JRenderPlus.useGlobalRender(
-        ({ onBeforeRender, onRender, addFunction, addDataSource }) => {
-          const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
-
-          // type 简写
-          onBeforeRender(() => (field, next) => {
-            if (field.type !== undefined) {
-              field.component = field.type
-            }
-
-            next(field)
-          })
-
-          // text
-          onBeforeRender(() => (field, next) => {
-            if (field.text !== undefined) {
-              field.props = field.props || {}
-              field.props.innerText = field.text
-            }
-
-            next(field)
-          })
-
-          // 条件显示
-          onRender(() => {
-            let watcher = null
-
-            return (field, next) => {
-              if (watcher) {
-                watcher()
-              }
-
-              watcher = Vue.watch(
-                () => field.condition,
-                (value) => {
-                  if (value !== undefined && !value) {
-                    next()
-                  } else {
-                    next(field)
-                  }
-                },
-                { immediate: true },
-              )
-            }
-          })
-
-          // value
-          onBeforeRender(() => (field, next) => {
-            if (typeof field.value === "string") {
-              const paths = field.value.split(".")
-              const path = [...paths].splice(1, paths.length)
-
-              field.props = field.props || {}
-              field.props.value = `$:${field.value}`
-              field.props.onInput = `$:(e) => SET(${paths[0]}, '${path.join(
-                "."
-              )}', e.target.value)`
-
-              delete field.value
-            }
-            next(field)
-          })
-
-          // model
-          onBeforeRender(() => (field, next) => {
-            if (typeof field.model === "string") {
-              const paths = field.model.split(".")
-              const path = [...paths].splice(1, paths.length)
-
-              field.props ||= {}
-              field.props.modelValue = `$:${field.model}`
-              field.props["onUpdate:modelValue"] = `$:(e) => SET(${
-                paths[0]
-              }, '${path.join(".")}', e)`
-
-              delete field.model
-            }
-            next(field)
-          })
-
-          // models
-          onBeforeRender(() => (field, next) => {
-            if (typeof field.models === "string") {
-              const paths = field.models.split(".")
-              const path = [...paths].splice(1, paths.length)
-
-              field.props ||= {}
-              field.props.modelValue = `$:GET(model, '${path.join(".")}', [])`
-              field.props["onUpdate:modelValue"] = `$:(e) => SET(${
-                paths[0]
-              }, '${path.join(".")}', e)`
-
-              delete field.models
-            }
-            next(field)
-          })
-
-          // for 表达式，还不知道怎么具体实现vue的for
-          onRender(({ context }) => (field, next) => {
-            if (!field) {
-              return next(field)
-            }
-
-            field.children = field?.children?.map((child) => {
-              const matched = forAliasRE.exec(child.for)
-              if (matched) {
-                const [origin, prop, source] = matched
-                return {
-                  component: Vue.markRaw(
-                    Vue.defineComponent({
-                      setup() {
-                        return () =>
-                          _.get(context, source)?.map((item, index) => {
-                            return Vue.h(JRenderPlus.JNode, {
-                              field: Object.assign(child, { for: undefined }),
-                              scope: { [prop]: item, index },
-                            })
-                          })
-                      },
-                    }),
-                  ),
-                }
-              } else {
-                return child
-              }
-            })
-
-            next(field)
-          })
-
-          // 外套表单项
-          onBeforeRender(() => (field, next) => {
-            if (!field?.formItem) {
-              return next(field)
-            }
-
-            const formItem = field.formItem
-            const condition = field.condition
-
-            delete field.formItem
-            delete field.condition
-
-            return next({
-              component: 'el-form-item',
-              condition,
-              props: formItem,
-              children: [field],
-            })
-          })
-
-          // 渲染控制
-          onBeforeRender(() => (field, next) => {
-            if (field?.rel !== true) {
-              return next(field)
-            }
-
-            let counter = 3
-
-            next({
-              component: "span",
-              props: { innerText: `Loading (${counter + 1})` }
-            })
-
-            const timer = setInterval(() => {
-              if (counter > 0) {
-                next({
-                  component: "span",
-                  props: { innerText: `Loading (${counter})` }
-                })
-                counter--
-              } else {
-                clearInterval(timer)
-                next(field)
-              }
-            }, 1000)
-          })
-
-          addDataSource("fetch", (opt) => {
-            const { autoLoad } = opt()
-            const instance = Vue.reactive({
-              fetch: async () => {
-                const options = opt()
-                try {
-                  instance.loading = true
-
-                  const response = await fetch(options.url, options.props)
-                  const result = await response[options.type || "json"]()
-                  setTimeout(() => {
-                    instance.data = result
-                    instance.loading = false
-                  }, options.fakeTimeout || 0)
-                } catch {
-                  instance.data = options.defaultData || []
-                  instance.loading = false
-                }
-              },
-              clear: () => {
-                instance.data = opt()?.defaultData || []
-              },
-              loading: false,
-              data: opt()?.defaultData || []
-            })
-
-            if (autoLoad) {
-              Vue.nextTick(() => {
-                instance.fetch()
-              })
-            }
-
-            return instance
-          })
-
-          addFunction("NEXTTICK", (cb) => {
-            return (...args) =>
-              nextTick(() => {
-                cb(...args)
-              })
-          })
-        }
-      )
-
       const app = Vue.createApp({
         setup() {
           return {
@@ -257,7 +36,7 @@
       })
 
       app.use(ElementPlus, { size: "small" })
-      app.component("jrender", JRenderPlus.JRender)
+      app.use("jrender", JRenderPlus.default)
       app.mount("#app")
     </script>
   </body>
