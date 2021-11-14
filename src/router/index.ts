@@ -27,6 +27,10 @@ export const router = createRouter({
       component: () => import('@/views/ElementTest.vue'),
     },
     {
+      path: '/vuetest',
+      component: () => import('@/views/VueTest.vue'),
+    },
+    {
       path: '/listtree',
       component: () => import('@/views/ListTree.vue'),
     },

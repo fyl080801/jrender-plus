@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { JRender } from '@jrender-plus/core'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { Document } from '@/components'
 
 const model: any = reactive({})
 
@@ -62,6 +63,25 @@ const configs = reactive({
     },
   ],
 })
+
+const data = ref([
+  {
+    text: 'aaaa',
+    children: [
+      { text: '啊啊啊啊', isLeaf: true },
+      { text: 'aaa-2', children: [{ text: 'xxxx', isLeaf: true }] },
+      { text: 'aaa-3' },
+      { text: 'aaa-4', isLeaf: true },
+    ],
+  },
+  {
+    text: 'bbb',
+    children: [
+      { text: 'bbb-1', isLeaf: true },
+      { text: 'bbb-2', isLeaf: true },
+    ],
+  },
+])
 
 const onSetup = ({ onBeforeRender }) => {
   // model
@@ -127,5 +147,6 @@ const onSetup = ({ onBeforeRender }) => {
       <span>header content</span>
     </template>
   </JRender>
+  <Document :data="data" />
   <!-- <p>{{}}</p> -->
 </template>

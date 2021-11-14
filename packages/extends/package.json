@@ -35,7 +35,8 @@
     "url": "https://github.com/fyl080801/jrender-plus/issues"
   },
   "dependencies": {
-    "@jrender-plus/core": "^0.3.2"
+    "@jrender-plus/core": "^0.3.2",
+    "vue": "^3.2.21"
   },
   "gitHead": "1c9316e0b6df232fb6047b3fd4f165d515cb5cfa"
 }

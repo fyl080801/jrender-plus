@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import { mergeConfig, defineConfig } from 'vite'
+import WindiCss from 'vite-plugin-windicss'
 import base from './build/vite.config.base'
 
 const prefix = `monaco-editor/esm/vs`
@@ -34,6 +35,7 @@ const config = defineConfig({
       },
     },
   },
+  plugins: [WindiCss()],
 })
 
 export default mergeConfig(base, config)
