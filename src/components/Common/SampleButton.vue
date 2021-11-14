@@ -1,0 +1,25 @@
+<template>
+  <button
+    class="
+      flex
+      items-center
+      justify-center
+      px-4
+      py-2
+      mx-3
+      text-white
+      transition
+      duration-200
+      ease-in-out
+      bg-blue-400
+      rounded
+      border-none
+      cursor-pointer
+      focus:(scale-110
+      outline-none)
+      hover:bg-blue-500
+    "
+  >
+    <slot />
+  </button>
+</template>

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { reactive, onMounted, ref, nextTick } from 'vue'
+import { reactive, onMounted, ref } from 'vue'
 import yaml from 'js-yaml'
 import { saveAs } from 'file-saver'
 import ejs from 'ejs'
-import { CodeEditor } from '@/components'
+import { CodeEditor, SampleButton } from '@/components'
 
 const demos = [
   { title: '基本示例', url: '/yaml/sample.yaml' },
@@ -75,7 +75,7 @@ onMounted(() => {
 
 <template>
   <div class="flex w-full h-full">
-    <div class="w-1/6 h-full overflow-auto border-r border-gray-300 border-solid">
+    <div class="w-1/6 h-full overflow-auto border-0 border-r border-solid border-gray-300">
       <ul>
         <a v-for="link in demos" @click="load(link.url)" class="cursor-pointer">
           <li>{{ link.title }}</li>
@@ -84,18 +84,13 @@ onMounted(() => {
       </ul>
     </div>
     <div class="flex flex-col flex-1">
-      <div class="flex py-2 border-b border-gray-300">
+      <div class="flex py-2 border-solid border-0 border-b border-gray-300">
         <div class="flex-1"></div>
-        <button
-          class="flex items-center justify-center px-4 py-2 mx-3 text-white transition duration-200 ease-in-out bg-blue-400 rounded cursor-pointer  focus:scale-110 focus:outline-none hover:bg-blue-500"
-          @click="exportTemplate"
-        >
-          导出当前布局
-        </button>
+        <sample-button @click="exportTemplate"> 导出当前布局 </sample-button>
       </div>
       <div class="flex flex-1 h-full">
         <div class="flex-1">
-          <CodeEditor
+          <code-editor
             :model-value="yamldata"
             @change="onConfigChange"
             language="yaml"
@@ -103,7 +98,7 @@ onMounted(() => {
           />
         </div>
         <div class="flex-1 h-full overflow-auto">
-          <JRender
+          <j-render
             v-if="!loading"
             v-model="configs.model"
             :fields="configs.fields"
@@ -111,7 +106,6 @@ onMounted(() => {
             :data-source="configs.datasource"
             @setup="onSetup"
           />
-          <!-- <p>{{ JSON.stringify(configs.model) }}</p> -->
         </div>
       </div>
     </div>
