@@ -119,7 +119,7 @@ onMounted(async () => {
             class="w-full h-full"
           />
         </div>
-        <div class="flex-1 h-full overflow-auto">
+        <div class="flex-1 h-full overflow-auto py-2 px-3">
           <j-render
             v-if="!loading"
             v-model="configs.model"

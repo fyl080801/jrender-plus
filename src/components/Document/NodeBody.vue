@@ -32,7 +32,7 @@ export default defineComponent({
       @dragenter="onDragover"
       @dragleave="onDragleave"
     ></div>
-    <div class="flex-1">
+    <div class="flex-1 flex">
       <slot />
     </div>
   </div>

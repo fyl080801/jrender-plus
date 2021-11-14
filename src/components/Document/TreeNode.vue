@@ -56,14 +56,17 @@ const onNodeDroped = () => {
       :node="node"
       class="border border-transparent border-solid hover:border-blue-500"
     >
+      <!-- 展开 -->
+      <div class="w-8">
+        <span v-if="!isLeaf" @click="onToggleOpen">[{{ isOpen ? '-' : '+' }}]</span>
+      </div>
       <div
-        class="relative py-1 leading-tight"
+        class="flex-1 relative py-2"
         draggable="true"
         @dragstart="onNodeDragstart"
         @click="onBodyClick"
       >
-        <span>{{ text }}</span>
-        <span v-if="!isLeaf" @click="onToggleOpen">[{{ isOpen ? '-' : '+' }}]</span>
+        <span class="leading-none">{{ text }}</span>
       </div>
     </NodeBody>
 
