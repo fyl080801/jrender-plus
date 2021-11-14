@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { watch, reactive } from 'vue'
 import Dragzone from './Dragzone.vue'
 import { useTreeNode, useTreeRoot } from './mixins'
 import TreeNodeChildren from './TreeNodeChildren.vue'
@@ -6,6 +7,13 @@ import TreeNodeChildren from './TreeNodeChildren.vue'
 const props = defineProps({ data: { type: Array, default: () => [] }, options: Object })
 
 const emit = defineEmits(['node-click'])
+
+watch(
+  () => props.data,
+  (value) => {
+    node.children = value
+  },
+)
 
 const context = useTreeRoot({
   state: {
@@ -19,8 +27,12 @@ const context = useTreeRoot({
   emit,
 })
 
+const node = reactive({
+  children: props.data,
+})
+
 const { children } = useTreeNode({
-  node: { children: props.data },
+  node,
   context,
 })
 </script>

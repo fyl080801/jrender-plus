@@ -8,18 +8,12 @@ import { useSampleStore } from '@/store'
 
 const simpleStore = useSampleStore()
 
-const demos = [
-  { title: '基本示例', url: '/yaml/sample.yaml' },
-  { title: '表单验证', url: '/yaml/formtest.yaml' },
-  { title: '列表', url: '/yaml/table.yaml' },
-]
-
 const documentOptions = {
   getNodeText: (node) => {
     return node.title
   },
   isLeaf: (node) => {
-    return !node.isDir
+    return node.type !== 'dir'
   },
 }
 
@@ -49,15 +43,8 @@ const onConfigChange = (value) => {
 }
 
 const onNodeClick = (node) => {
-  load(node.url)
-}
-
-const load = async (url) => {
-  loading.value = true
-  const result = await fetch(url)
   configs.model = {}
-  yamldata.value = await result.text()
-  loading.value = false
+  yamldata.value = node.content
 }
 
 const toCustom = () => {
@@ -84,9 +71,10 @@ const exportTemplate = () => {
   })
 }
 
-onMounted(() => {
-  load('/yaml/formtest.yaml')
-  simpleStore.sync()
+onMounted(async () => {
+  await simpleStore.sync()
+  configs.model = {}
+  yamldata.value = simpleStore.state.document[0]?.content || ''
 })
 </script>
 
@@ -108,7 +96,11 @@ onMounted(() => {
         <sample-button type="primary"> 添加 </sample-button>
       </div>
       <div class="flex-1 h-full overflow-auto">
-        <document :data="demos" :options="documentOptions" @node-click="onNodeClick" />
+        <document
+          :data="simpleStore.state.document"
+          :options="documentOptions"
+          @node-click="onNodeClick"
+        />
       </div>
     </div>
     <div class="flex flex-col flex-1">

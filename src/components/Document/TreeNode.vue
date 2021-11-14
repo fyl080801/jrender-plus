@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTree, useTreeNode } from './mixins'
 import Dragzone from './Dragzone.vue'
-import { reactive } from 'vue'
 import NodeBody from './NodeBody.vue'
 import TreeNodeChildren from './TreeNodeChildren.vue'
 
@@ -15,7 +14,7 @@ const props = defineProps({
 const context = useTree()
 
 const { text, isLeaf, isOpen, onToggleOpen } = useTreeNode({
-  node: reactive(props.node),
+  node: props.node,
   context,
 })
 

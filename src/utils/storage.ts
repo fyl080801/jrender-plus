@@ -7,7 +7,7 @@ export const dbTables = {
 }
 
 export const initLocalDB = async () => {
-  const currentVerion = 14
+  const currentVerion = 15
 
   await openDB(STORAGE, currentVerion, {
     upgrade: (db) => {
@@ -18,4 +18,8 @@ export const initLocalDB = async () => {
       db.createObjectStore(dbTables.SAMPLE, { keyPath: 'id', autoIncrement: true })
     },
   })
+}
+
+export const getLocalDB = () => {
+  return openDB(STORAGE)
 }

@@ -1,5 +1,5 @@
 import { reactive, shallowReadonly } from 'vue'
-import { isFunction } from '@jrender-plus/core'
+import { isFunction, isPromise } from '@jrender-plus/core'
 
 const dispatchProp = '__s_dispatch'
 
@@ -22,7 +22,9 @@ const pipeline = (...funcs) => {
 
       let currentFn = i >= funcs.length ? null : funcs[i]
 
-      if (!currentFn) return Promise.resolve()
+      if (!currentFn) {
+        return Promise.resolve()
+      }
 
       return Promise.resolve(currentFn(scope, next))
     }
@@ -71,8 +73,11 @@ export const store = <T, V>(init: T, factory, globals?) => {
         apply: (t, thisArg, argArray) => {
           let result
 
-          pipeline(...dispatch, (_, next) => {
+          pipeline(...dispatch, async (_, next) => {
             result = Reflect.apply(t, thisArg, argArray)
+
+            isPromise(result) && (await result)
+
             next()
           })(argArray)
 

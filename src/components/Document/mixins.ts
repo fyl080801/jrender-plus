@@ -69,7 +69,7 @@ export const useTree = () => {
 
 export const useTreeNode = (params) => {
   if (params) {
-    const { node, context, emit } = params
+    const { node, context } = params
     const { methods } = context
 
     const text = computed(() => {
