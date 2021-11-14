@@ -28,11 +28,12 @@ const defaults = {
 }
 
 export const useTreeRoot = (params) => {
-  const { state = {}, methods = {} } = params
+  const { state = {}, methods = {}, emit } = params
 
   const context = {
     state: reactive({ ...state, changes: [], from: null }),
     methods: { ...defaults.methods, ...cleanObject(methods) },
+    emit,
   }
 
   provide(treeToken, context)
@@ -59,12 +60,16 @@ export const useTreeRoot = (params) => {
 }
 
 export const useTree = () => {
-  return inject(treeToken, { state: reactive({ dragging: false }), ...defaults })
+  return inject(treeToken, {
+    state: reactive({ dragging: false }),
+    emit: (evt, params?) => {},
+    ...defaults,
+  })
 }
 
 export const useTreeNode = (params) => {
   if (params) {
-    const { node, context } = params
+    const { node, context, emit } = params
     const { methods } = context
 
     const text = computed(() => {

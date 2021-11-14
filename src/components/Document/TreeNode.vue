@@ -19,6 +19,10 @@ const { text, isLeaf, isOpen, onToggleOpen } = useTreeNode({
   context,
 })
 
+const onBodyClick = () => {
+  context.emit('node-click', props.node)
+}
+
 const onNodeDragstart = (event) => {
   context.state.dragging = true
   const cloned = event.target.cloneNode(true)
@@ -53,7 +57,12 @@ const onNodeDroped = () => {
       :node="node"
       class="border border-transparent border-solid hover:border-blue-500"
     >
-      <div class="relative py-1 leading-tight" draggable="true" @dragstart="onNodeDragstart">
+      <div
+        class="relative py-1 leading-tight"
+        draggable="true"
+        @dragstart="onNodeDragstart"
+        @click="onBodyClick"
+      >
         <span>{{ text }}</span>
         <span v-if="!isLeaf" @click="onToggleOpen">[{{ isOpen ? '-' : '+' }}]</span>
       </div>

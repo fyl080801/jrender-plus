@@ -3,13 +3,25 @@ import { reactive, onMounted, ref } from 'vue'
 import yaml from 'js-yaml'
 import { saveAs } from 'file-saver'
 import ejs from 'ejs'
-import { CodeEditor, SampleButton } from '@/components'
+import { CodeEditor, SampleButton, Document } from '@/components'
+import { useSampleStore } from '@/store'
+
+const simpleStore = useSampleStore()
 
 const demos = [
   { title: '基本示例', url: '/yaml/sample.yaml' },
   { title: '表单验证', url: '/yaml/formtest.yaml' },
   { title: '列表', url: '/yaml/table.yaml' },
 ]
+
+const documentOptions = {
+  getNodeText: (node) => {
+    return node.title
+  },
+  isLeaf: (node) => {
+    return !node.isDir
+  },
+}
 
 const configs = reactive({
   model: {},
@@ -34,6 +46,10 @@ const onConfigChange = (value) => {
   } catch {
     //
   }
+}
+
+const onNodeClick = (node) => {
+  load(node.url)
 }
 
 const load = async (url) => {
@@ -70,23 +86,37 @@ const exportTemplate = () => {
 
 onMounted(() => {
   load('/yaml/formtest.yaml')
+  simpleStore.sync()
 })
 </script>
 
 <template>
   <div class="flex w-full h-full">
-    <div class="w-1/6 h-full overflow-auto border-0 border-r border-solid border-gray-300">
-      <ul>
-        <a v-for="link in demos" @click="load(link.url)" class="cursor-pointer">
-          <li>{{ link.title }}</li>
-        </a>
-        <a class="cursor-pointer" @click="toCustom"><li>随意编辑</li></a>
-      </ul>
+    <div
+      class="
+        w-1/6
+        h-full
+        flex flex-col
+        overflow-auto
+        border-0 border-r border-solid border-gray-300
+      "
+    >
+      <div class="flex py-2 px-3 border-solid border-0 border-b border-gray-300">
+        <div class="flex-1">
+          <sample-button @click="toCustom"> 随意编辑 </sample-button>
+        </div>
+        <sample-button type="primary"> 添加 </sample-button>
+      </div>
+      <div class="flex-1 h-full overflow-auto">
+        <document :data="demos" :options="documentOptions" @node-click="onNodeClick" />
+      </div>
     </div>
     <div class="flex flex-col flex-1">
-      <div class="flex py-2 border-solid border-0 border-b border-gray-300">
+      <div class="flex py-2 px-3 border-solid border-0 border-b border-gray-300">
         <div class="flex-1"></div>
-        <sample-button @click="exportTemplate"> 导出当前布局 </sample-button>
+        <div>
+          <sample-button type="primary" @click="exportTemplate"> 导出当前布局 </sample-button>
+        </div>
       </div>
       <div class="flex flex-1 h-full">
         <div class="flex-1">

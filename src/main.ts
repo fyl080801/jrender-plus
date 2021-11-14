@@ -2,13 +2,24 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { useElementUI, useAntd, useRender } from './components'
 import { useAppRouter } from './router'
+import { initLocalDB } from './utils/storage'
 import 'virtual:windi.css'
 
-const app = createApp(App)
+const bootstrap = async () => {
+  try {
+    await initLocalDB()
 
-useElementUI(app)
-useAntd(app)
-useAppRouter(app)
-useRender(app)
+    const app = createApp(App)
 
-app.mount('#app')
+    useElementUI(app)
+    useAntd(app)
+    useAppRouter(app)
+    useRender(app)
+
+    app.mount('#app')
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+bootstrap()

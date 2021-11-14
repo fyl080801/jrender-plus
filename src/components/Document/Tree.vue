@@ -5,6 +5,8 @@ import TreeNodeChildren from './TreeNodeChildren.vue'
 
 const props = defineProps({ data: { type: Array, default: () => [] }, options: Object })
 
+const emit = defineEmits(['node-click'])
+
 const context = useTreeRoot({
   state: {
     dragging: false,
@@ -14,6 +16,7 @@ const context = useTreeRoot({
     isLeaf: props.options?.isLeaf,
     getNodeText: props.options?.getNodeText,
   },
+  emit,
 })
 
 const { children } = useTreeNode({

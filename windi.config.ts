@@ -5,10 +5,6 @@ export default defineConfig({
   darkMode: 'media',
   theme: {
     extend: {},
-    // borderColor: (theme) => ({
-    //   ...theme('color'),
-    //   DEFAULT: theme('colors.gray.300', 'currentColor'),
-    // }),
   },
   plugins: [],
 })

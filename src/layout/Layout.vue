@@ -12,7 +12,7 @@ const routes = [
     <nav class="flex items-center justify-between flex-wrap bg-blue-500 p-6">
       <logo> JRender+ </logo>
       <div class="w-full block flex-grow lg:(flex items-center w-auto)">
-        <div class="text-sm lg:flex-grow">
+        <div class="lg:flex-grow">
           <nav-link v-for="route in routes" :link="route.link">
             {{ route.title }}
           </nav-link>
