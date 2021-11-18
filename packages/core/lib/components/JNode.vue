@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { assignObject } from '../utils/helper'
+import { assignObject, isPromise } from '../utils/helper'
 import { useJRender, useScope } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
 import { getProxyDefine, injectProxy } from '../utils/proxy'
@@ -53,9 +53,11 @@ const renderSlots = computed<any>(() => {
 const render = pipeline(
   ...[
     ...services.beforeRenderHandlers.map((item) => item.handler),
-    () => (field, next) => {
+    () => async (field, next) => {
+      let nexted
+
       if (field?.component === 'slot') {
-        return next({
+        nexted = next({
           component: markRaw(JSlot),
           props: {
             renderSlot: () => {
@@ -64,8 +66,13 @@ const render = pipeline(
             },
           },
         })
+      } else {
+        nexted = next(field)
       }
-      next(field)
+
+      if (isPromise(nexted)) {
+        await nexted
+      }
     },
     () => (field, next) => {
       renderField.value = injector(getProxyDefine(field))
