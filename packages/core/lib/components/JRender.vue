@@ -31,7 +31,7 @@ const injector = injectProxy({
 })
 
 useJRender({
-  context,
+  // context,
   services,
   props,
   slots: useSlots(),
@@ -77,7 +77,7 @@ export default defineComponent({ name: 'JRender' })
 
 <template>
   <template v-if="isArrayRoot">
-    <JNode :field="field" v-for="field in fields" />
+    <JNode :field="field" v-for="field in fields" :context="context" />
   </template>
-  <JNode v-else :field="fields" />
+  <JNode v-else :field="fields" :context="context" />
 </template>

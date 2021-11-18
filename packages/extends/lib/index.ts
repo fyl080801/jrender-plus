@@ -111,6 +111,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
                       return h(JNode, {
                         field: assignObject(child, { for: undefined }),
                         scope: { [prop]: item, index },
+                        context,
                       })
                     })
                 },

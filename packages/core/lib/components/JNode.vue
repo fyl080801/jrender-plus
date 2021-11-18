@@ -9,14 +9,15 @@ const props = defineProps({
   field: Object,
   scope: Object,
   temp: Object,
+  context: Object,
 })
 
-const { context, services, slots } = useJRender()
+const { services, slots } = useJRender()
 
 const { scope } = useScope(assignObject(props.scope || {}, props.temp))
 
 const sharedServices = {
-  context,
+  context: props.context,
   scope,
   props,
   render: () => {
@@ -25,7 +26,7 @@ const sharedServices = {
 }
 
 const injector = injectProxy({
-  context,
+  context: props.context,
   scope,
   proxy: services.proxy.map((p) => p({ functional: services.functional })),
 })
@@ -74,14 +75,20 @@ const render = pipeline(
         await nexted
       }
     },
-    () => (field, next) => {
+    () => async (field, next) => {
       renderField.value = injector(getProxyDefine(field))
-      next(renderField.value)
+      const nexted = next(renderField.value)
+      if (isPromise(nexted)) {
+        await nexted
+      }
     },
     ...services.renderHandlers.map((item) => item.handler),
-    () => (field, next) => {
+    () => async (field, next) => {
       renderField.value = field
-      next(renderField.value)
+      const nexted = next(renderField.value)
+      if (isPromise(nexted)) {
+        await nexted
+      }
     },
   ].map((provider) => provider(sharedServices)),
 )
@@ -121,6 +128,7 @@ export default defineComponent({
         :field="child"
         :scope="scope"
         :temp="getTemplateScope(templateScope)"
+        :context="context"
       />
     </template>
   </component>

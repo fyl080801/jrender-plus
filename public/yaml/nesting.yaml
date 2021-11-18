@@ -52,6 +52,9 @@ fields:
           prop1:
             text: $:model.text1
         children:
+          - component: p
+            props:
+              innerText: $:model.text1
           - component: span
             props:
               innerText: slot里的内容2
@@ -59,3 +62,5 @@ fields:
             slot: head
             props:
               innerText: head slot 里的内容
+          
+
