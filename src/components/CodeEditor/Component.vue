@@ -1,29 +1,36 @@
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { editor } from 'monaco-editor'
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import YamlWorker from 'monaco-editor/esm/vs/basic-languages/yaml/yaml?worker'
-import { setDiagnosticsOptions } from 'monaco-yaml'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { editor } from 'monaco-editor/esm/vs/editor/editor.api'
+import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands'
+import 'monaco-editor/esm/vs/editor/contrib/format/formatActions'
+import 'monaco-editor/esm/vs/editor/contrib/find/findController'
+import 'monaco-editor/esm/vs/editor/contrib/suggest/suggestController' // 代码提示
+import 'monaco-editor/esm/vs/editor/contrib/comment/comment' // 注释快捷键
+import 'monaco-editor/esm/vs/editor/contrib/folding/folding' // 折叠
+import 'monaco-editor/esm/vs/editor/contrib/wordHighlighter/wordHighlighter'
+import 'monaco-editor/esm/vs/editor/contrib/wordOperations/wordOperations'
+import 'monaco-editor/esm/vs/editor/contrib/wordPartOperations/wordPartOperations'
+// import 'monaco-editor/esm/vs/editor/contrib/linesOperations/linesOperations'
+import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution'
 
-setDiagnosticsOptions({
-  enableSchemaRequest: true,
-  hover: true,
-  completion: true,
-  validate: true,
-  format: true,
-})
-;(self as any).MonacoEnvironment = {
-  getWorker(_, label) {
-    if (label === 'json') {
-      return new JsonWorker()
-    }
-    if (label === 'yaml') {
-      return new YamlWorker()
-    }
-    return new EditorWorker()
-  },
-}
+// setDiagnosticsOptions({
+//   enableSchemaRequest: true,
+//   hover: true,
+//   completion: true,
+//   validate: true,
+//   format: true,
+// })
+// ;(self as any).MonacoEnvironment = {
+//   getWorker(_, label) {
+//     if (label === 'json') {
+//       return new JsonWorker()
+//     }
+//     if (label === 'yaml') {
+//       return new YamlWorker()
+//     }
+//     return new EditorWorker()
+//   },
+// }
 
 const props = defineProps({
   modelValue: { type: String, required: true },
