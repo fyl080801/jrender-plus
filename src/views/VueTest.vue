@@ -83,9 +83,9 @@ const data = ref([
   },
 ])
 
-const onSetup = ({ onBeforeRender }) => {
+const onSetup = ({ onBeforeBind }) => {
   // model
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (typeof field.model === 'string') {
       const paths = field.model.split('.')
       const path = [...paths].splice(1, paths.length)
@@ -100,7 +100,7 @@ const onSetup = ({ onBeforeRender }) => {
   })
 
   // 外套表单项
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (!field.formItem) {
       return next(field)
     }
@@ -113,7 +113,7 @@ const onSetup = ({ onBeforeRender }) => {
   })
 
   // 渲染控制
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (field.rel !== true) {
       return next(field)
     }

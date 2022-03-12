@@ -21,3 +21,7 @@ fields:
       - component: span
         props:
           innerText: $:prop1.text
+      - component: input
+        props:
+          value: $:prop1.text
+          onInput: $:(e)=>prop1.text=e.target.value

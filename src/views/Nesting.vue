@@ -3,8 +3,8 @@ import { fetchYaml } from '@/utils/data'
 import { useRootRender } from '@jrender-plus/core'
 import { reactive, onMounted, watch, onBeforeUnmount } from 'vue'
 
-useRootRender(({ onRender }) => {
-  onRender(() => {
+useRootRender(({ onBind }) => {
+  onBind(() => {
     const customs = {}
     const watchs = []
 

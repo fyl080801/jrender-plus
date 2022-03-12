@@ -56,8 +56,8 @@ const configs = reactive({
   fields: map.filter((item) => !item.parentId),
 })
 
-useRootRender(({ onBeforeRender }) => {
-  onBeforeRender(({ props }) => {
+useRootRender(({ onBeforeBind }) => {
+  onBeforeBind(({ props }) => {
     let watcher = null
 
     return (field, next) => {

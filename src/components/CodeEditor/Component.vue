@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api'
-import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands'
-import 'monaco-editor/esm/vs/editor/contrib/format/formatActions'
-import 'monaco-editor/esm/vs/editor/contrib/find/findController'
-import 'monaco-editor/esm/vs/editor/contrib/suggest/suggestController' // 代码提示
-import 'monaco-editor/esm/vs/editor/contrib/comment/comment' // 注释快捷键
-import 'monaco-editor/esm/vs/editor/contrib/folding/folding' // 折叠
-import 'monaco-editor/esm/vs/editor/contrib/wordHighlighter/wordHighlighter'
-import 'monaco-editor/esm/vs/editor/contrib/wordOperations/wordOperations'
-import 'monaco-editor/esm/vs/editor/contrib/wordPartOperations/wordPartOperations'
-// import 'monaco-editor/esm/vs/editor/contrib/linesOperations/linesOperations'
+import 'monaco-editor/esm/vs/editor/browser/coreCommands'
+import 'monaco-editor/esm/vs/editor/contrib/format/browser/formatActions'
+import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController'
+import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController' // 代码提示
+import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment' // 注释快捷键
+import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding' // 折叠
+import 'monaco-editor/esm/vs/editor/contrib/wordHighlighter/browser/wordHighlighter'
+import 'monaco-editor/esm/vs/editor/contrib/wordOperations/browser/wordOperations'
+import 'monaco-editor/esm/vs/editor/contrib/wordPartOperations/browser/wordPartOperations'
+// import 'monaco-editor/esm/vs/editor/contrib/linesOperations/browser/linesOperations'
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution'
 
 // setDiagnosticsOptions({

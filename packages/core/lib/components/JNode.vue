@@ -53,7 +53,7 @@ const renderSlots = computed<any>(() => {
 
 const render = pipeline(
   ...[
-    ...services.beforeRenderHandlers.map((item) => item.handler),
+    ...services.beforeBindHandlers.map((item) => item.handler),
     () => async (field, next) => {
       let nexted
 
@@ -82,7 +82,7 @@ const render = pipeline(
         await nexted
       }
     },
-    ...services.renderHandlers.map((item) => item.handler),
+    ...services.bindHandlers.map((item) => item.handler),
     () => async (field, next) => {
       renderField.value = field
       const nexted = next(renderField.value)

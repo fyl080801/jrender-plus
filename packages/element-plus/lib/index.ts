@@ -1,6 +1,6 @@
-export default ({ onBeforeRender }) => {
+export default ({ onBeforeBind }) => {
   // 外套表单项
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (!field?.formItem) {
       return next(field)
     }
@@ -20,7 +20,7 @@ export default ({ onBeforeRender }) => {
   })
 
   // 渲染控制
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (field?.rel !== true) {
       return next(field)
     }

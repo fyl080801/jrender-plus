@@ -1,9 +1,9 @@
 import { watch, reactive, nextTick, markRaw, h, defineComponent } from 'vue'
 import { JNode, deepGet, assignObject, toPath } from '@jrender-plus/core'
 
-export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
+export default ({ onBeforeBind, onBind, addDataSource, addFunction }) => {
   // type 简写
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (field.type !== undefined) {
       field.component = field.type
     }
@@ -12,7 +12,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   })
 
   // text
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (field.text !== undefined) {
       field.props = field.props || {}
       field.props.innerText = field.text
@@ -22,7 +22,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   })
 
   // 条件显示
-  onRender(() => {
+  onBind(() => {
     let watcher = null
 
     return (field, next) => {
@@ -45,7 +45,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   })
 
   // value
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (typeof field.value === 'string') {
       const paths = toPath(field.value)
       const path = [...paths].splice(1, paths.length)
@@ -60,7 +60,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   })
 
   // model
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (typeof field.model === 'string') {
       const paths = toPath(field.model)
       const path = [...paths].splice(1, paths.length)
@@ -75,7 +75,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   })
 
   // models
-  onBeforeRender(() => (field, next) => {
+  onBeforeBind(() => (field, next) => {
     if (typeof field.models === 'string') {
       const paths = field.models.split('.')
       const path = [...paths].splice(1, paths.length)
@@ -92,7 +92,7 @@ export default ({ onBeforeRender, onRender, addDataSource, addFunction }) => {
   const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
   // for 表达式，还不知道怎么具体实现vue的for
-  onRender(({ context }) => {
+  onBind(({ context }) => {
     return (field, next) => {
       if (!field) {
         return next(field)

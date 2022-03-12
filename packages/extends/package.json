@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@jrender-plus/core": "^0.3.3",
-    "vue": "^3.2.26"
+    "vue": "^3.2.31"
   },
   "gitHead": "1c9316e0b6df232fb6047b3fd4f165d515cb5cfa"
 }
