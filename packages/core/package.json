@@ -5,17 +5,17 @@
   "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
+  "main": "dist/index.min.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.umd.js",
-      "import": "./dist/index.es.js"
+      "import": "./dist/index.esm.js"
     }
   },
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "dist"
@@ -25,7 +25,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "dist": "yarn clean && vite build"
+    "dist": "cross-env NODE_ENV=production rollup --config rollup.config.js"
   },
   "gitHead": "1c9316e0b6df232fb6047b3fd4f165d515cb5cfa",
   "dependencies": {

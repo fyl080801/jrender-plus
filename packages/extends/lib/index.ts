@@ -127,40 +127,40 @@ export default ({ onBeforeBind, onBind, addDataSource, addFunction }) => {
     }
   })
 
-  addDataSource('fetch', (opt) => {
-    const { autoLoad } = opt()
-    const instance = reactive({
-      fetch: async () => {
-        const options: any = opt()
-        try {
-          instance.loading = true
+  // addDataSource('fetch', (opt) => {
+  //   const { autoLoad } = opt()
+  //   const instance = reactive({
+  //     fetch: async () => {
+  //       const options = opt()
+  //       try {
+  //         instance.loading = true
 
-          const response: any = await fetch(options.url, options.props)
-          const result = await response[options.type || 'json']()
-          setTimeout(() => {
-            instance.data = result
-            instance.loading = false
-          }, options.fakeTimeout || 0)
-        } catch {
-          instance.data = options.defaultData || []
-          instance.loading = false
-        }
-      },
-      clear: () => {
-        instance.data = opt()?.defaultData || []
-      },
-      loading: false,
-      data: opt()?.defaultData || [],
-    })
+  //         const response: any = await fetch(options.url, options.props)
+  //         const result = await response[options.type || 'json']()
+  //         setTimeout(() => {
+  //           instance.data = result
+  //           instance.loading = false
+  //         }, options.fakeTimeout || 0)
+  //       } catch {
+  //         instance.data = options.defaultData || []
+  //         instance.loading = false
+  //       }
+  //     },
+  //     clear: () => {
+  //       instance.data = opt()?.defaultData || []
+  //     },
+  //     loading: false,
+  //     data: opt()?.defaultData || [],
+  //   })
 
-    if (autoLoad) {
-      nextTick(() => {
-        instance.fetch()
-      })
-    }
+  //   if (autoLoad) {
+  //     nextTick(() => {
+  //       instance.fetch()
+  //     })
+  //   }
 
-    return instance
-  })
+  //   return instance
+  // })
 
   addFunction('NEXTTICK', (cb) => {
     return (...args) =>

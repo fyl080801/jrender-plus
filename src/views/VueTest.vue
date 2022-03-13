@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import { JRender } from '@jrender-plus/core'
+// import { JRender } from '@jrender-plus/core'
 import { reactive, ref } from 'vue'
-import { Document } from '@/components'
+// import { Document } from '@/components'
 
-const model: any = reactive({})
-
-const configs = reactive({
-  model: {},
+const config = reactive({
   dataSource: {
     rules: {
       props: {
@@ -38,105 +35,116 @@ const configs = reactive({
         },
       ],
     },
-    { component: 'slot' },
-    {
-      component: 'el-form',
-      props: {
-        labelWidth: '120px',
-        model: '$:model',
-      },
-      children: [
-        {
-          component: 'el-input',
-          model: 'model.text',
-          formItem: {
-            label: 'aa',
-            prop: 'text',
-            rules: '$:rules.text',
-          },
-          props: {
-            style: { width: 'auto' },
-          },
-          children: [{ component: 'span', slot: 'append', props: { innerText: 'end' } }],
-        },
-      ],
-    },
   ],
 })
 
-const data = ref([
-  {
-    text: 'aaaa',
-    children: [
-      { text: '啊啊啊啊', isLeaf: true },
-      { text: 'aaa-2', children: [{ text: 'xxxx', isLeaf: true }] },
-      { text: 'aaa-3' },
-      { text: 'aaa-4', isLeaf: true },
-    ],
-  },
-  {
-    text: 'bbb',
-    children: [
-      { text: 'bbb-1', isLeaf: true },
-      { text: 'bbb-2', isLeaf: true },
-    ],
-  },
-])
+// const model: any = reactive({})
 
-const onSetup = ({ onBeforeBind }) => {
-  // model
-  onBeforeBind(() => (field, next) => {
-    if (typeof field.model === 'string') {
-      const paths = field.model.split('.')
-      const path = [...paths].splice(1, paths.length)
+// const configs = reactive({
+//   model: {},
 
-      field.props ||= {}
-      field.props.modelValue = `$:${field.model}`
-      field.props['onUpdate:modelValue'] = `$:(e) => SET(${paths[0]}, '${path.join('.')}', e)`
+//   fields: [
 
-      delete field.model
-    }
-    next(field)
-  })
+//     { component: 'slot' },
+//     {
+//       component: 'el-form',
+//       props: {
+//         labelWidth: '120px',
+//         model: '$:model',
+//       },
+//       children: [
+//         {
+//           component: 'el-input',
+//           model: 'model.text',
+//           formItem: {
+//             label: 'aa',
+//             prop: 'text',
+//             rules: '$:rules.text',
+//           },
+//           props: {
+//             style: { width: 'auto' },
+//           },
+//           children: [{ component: 'span', slot: 'append', props: { innerText: 'end' } }],
+//         },
+//       ],
+//     },
+//   ],
+// })
 
-  // 外套表单项
-  onBeforeBind(() => (field, next) => {
-    if (!field.formItem) {
-      return next(field)
-    }
+// const data = ref([
+//   {
+//     text: 'aaaa',
+//     children: [
+//       { text: '啊啊啊啊', isLeaf: true },
+//       { text: 'aaa-2', children: [{ text: 'xxxx', isLeaf: true }] },
+//       { text: 'aaa-3' },
+//       { text: 'aaa-4', isLeaf: true },
+//     ],
+//   },
+//   {
+//     text: 'bbb',
+//     children: [
+//       { text: 'bbb-1', isLeaf: true },
+//       { text: 'bbb-2', isLeaf: true },
+//     ],
+//   },
+// ])
 
-    const formItem = field.formItem
+// const onSetup = ({ onBeforeBind }) => {
+//   // model
+//   onBeforeBind(() => (field, next) => {
+//     if (typeof field.model === 'string') {
+//       const paths = field.model.split('.')
+//       const path = [...paths].splice(1, paths.length)
 
-    delete field.formItem
+//       field.props ||= {}
+//       field.props.modelValue = `$:${field.model}`
+//       field.props['onUpdate:modelValue'] = `$:(e) => SET(${paths[0]}, '${path.join('.')}', e)`
 
-    return next({ component: 'el-form-item', props: formItem, children: [field] })
-  })
+//       delete field.model
+//     }
+//     next(field)
+//   })
 
-  // 渲染控制
-  onBeforeBind(() => (field, next) => {
-    if (field.rel !== true) {
-      return next(field)
-    }
+//   // 外套表单项
+//   onBeforeBind(() => (field, next) => {
+//     if (!field.formItem) {
+//       return next(field)
+//     }
 
-    let counter = 3
+//     const formItem = field.formItem
 
-    next({ component: 'span', props: { innerText: `Loading (${counter + 1})` } })
+//     delete field.formItem
 
-    const timer = setInterval(() => {
-      if (counter > 0) {
-        next({ component: 'span', props: { innerText: `Loading (${counter})` } })
-        counter--
-      } else {
-        clearInterval(timer)
-        next(field)
-      }
-    }, 1000)
-  })
-}
+//     return next({ component: 'el-form-item', props: formItem, children: [field] })
+//   })
+
+//   // 渲染控制
+//   onBeforeBind(() => (field, next) => {
+//     if (field.rel !== true) {
+//       return next(field)
+//     }
+
+//     let counter = 3
+
+//     next({ component: 'span', props: { innerText: `Loading (${counter + 1})` } })
+
+//     const timer = setInterval(() => {
+//       if (counter > 0) {
+//         next({ component: 'span', props: { innerText: `Loading (${counter})` } })
+//         counter--
+//       } else {
+//         clearInterval(timer)
+//         next(field)
+//       }
+//     }, 1000)
+//   })
+// }
 </script>
 
 <template>
-  <JRender
+  <j-render :fields="config.fields" />
+  <!-- <JRender
     :fields="configs.fields"
     :data-source="configs.dataSource"
     v-model="model"
@@ -147,6 +155,6 @@ const onSetup = ({ onBeforeBind }) => {
       <span>header content</span>
     </template>
   </JRender>
-  <Document :data="data" />
+  <Document :data="data" /> -->
   <!-- <p>{{}}</p> -->
 </template>

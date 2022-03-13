@@ -29,7 +29,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "dist": "yarn clean && vite build"
+    "dist": "cross-env NODE_ENV=production rollup --config rollup.config.js"
   },
   "bugs": {
     "url": "https://github.com/fyl080801/jrender-plus/issues"

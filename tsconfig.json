@@ -1,16 +1,20 @@
 {
+  "vueCompilerOptions": {
+    "experimentalCompatMode": 3
+  },
   "compilerOptions": {
     "target": "esnext",
-    "useDefineForClassFields": true,
     "module": "esnext",
-    "moduleResolution": "node",
     "strict": false,
     "jsx": "preserve",
-    "sourceMap": true,
-    "resolveJsonModule": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "dom"],
-
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
@@ -24,9 +28,11 @@
     "packages/*/lib/**/*.tsx",
     "packages/*/lib/**/*.vue",
     "src/**/*.ts",
-    "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "src/**/*.d.ts",
+    "tests/**/*.tsx"
   ],
   "exclude": ["node_modules", "dist"]
 }
