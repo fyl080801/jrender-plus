@@ -1,3 +1,3 @@
-const helperGlobal = {};
+const helperGlobal = {}
 
-module.exports = { helperGlobal };
+module.exports = { helperGlobal }

@@ -1,48 +1,46 @@
-import { watch, reactive, nextTick, markRaw, h, defineComponent } from 'vue'
-import { JNode, deepGet, assignObject, toPath } from '@jrender-plus/core'
+import { watch, onBeforeUnmount, markRaw, h, defineComponent } from 'vue'
+import { JNode, deepGet, assignObject, toPath, defineRenderSetup } from '@jrender-plus/core'
 
-export default ({ onBeforeBind, onBind, addDataSource, addFunction }) => {
+export default defineRenderSetup(({ onBeforeBind, onBind }) => {
   // type 简写
-  onBeforeBind(() => (field, next) => {
-    if (field.type !== undefined) {
-      field.component = field.type
+  onBeforeBind(({ props }) => {
+    if (props.field.type !== undefined) {
+      props.field.component = props.field.type
     }
 
-    next(field)
-  })
-
-  // text
-  onBeforeBind(() => (field, next) => {
-    if (field.text !== undefined) {
-      field.props = field.props || {}
-      field.props.innerText = field.text
+    return (field, next) => {
+      next(field)
     }
-
-    next(field)
-  })
+  }).name('type')
 
   // 条件显示
   onBind(() => {
     let watcher = null
 
-    return (field, next) => {
-      if (watcher) {
-        watcher()
-      }
+    onBeforeUnmount(() => {
+      watcher && watcher()
+    })
 
-      watcher = watch(
-        () => field.condition,
-        (value) => {
-          if (value !== undefined && !value) {
-            next()
-          } else {
-            next(field)
-          }
-        },
-        { immediate: true },
-      )
+    return (field, next) => {
+      watcher && watcher()
+
+      if (typeof field?.condition === 'function') {
+        watcher = watch(
+          field.condition,
+          (value) => {
+            if (value !== undefined && !value) {
+              next({})
+            } else {
+              next(field)
+            }
+          },
+          { immediate: true },
+        )
+      } else {
+        next(field)
+      }
     }
-  })
+  }).name('condition')
 
   // value
   onBeforeBind(() => (field, next) => {
@@ -89,10 +87,10 @@ export default ({ onBeforeBind, onBind, addDataSource, addFunction }) => {
     next(field)
   })
 
-  const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
-
   // for 表达式，还不知道怎么具体实现vue的for
   onBind(({ context }) => {
+    const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
+
     return (field, next) => {
       if (!field) {
         return next(field)
@@ -126,46 +124,4 @@ export default ({ onBeforeBind, onBind, addDataSource, addFunction }) => {
       next(field)
     }
   })
-
-  // addDataSource('fetch', (opt) => {
-  //   const { autoLoad } = opt()
-  //   const instance = reactive({
-  //     fetch: async () => {
-  //       const options = opt()
-  //       try {
-  //         instance.loading = true
-
-  //         const response: any = await fetch(options.url, options.props)
-  //         const result = await response[options.type || 'json']()
-  //         setTimeout(() => {
-  //           instance.data = result
-  //           instance.loading = false
-  //         }, options.fakeTimeout || 0)
-  //       } catch {
-  //         instance.data = options.defaultData || []
-  //         instance.loading = false
-  //       }
-  //     },
-  //     clear: () => {
-  //       instance.data = opt()?.defaultData || []
-  //     },
-  //     loading: false,
-  //     data: opt()?.defaultData || [],
-  //   })
-
-  //   if (autoLoad) {
-  //     nextTick(() => {
-  //       instance.fetch()
-  //     })
-  //   }
-
-  //   return instance
-  // })
-
-  addFunction('NEXTTICK', (cb) => {
-    return (...args) =>
-      nextTick(() => {
-        cb(...args)
-      })
-  })
-}
+})

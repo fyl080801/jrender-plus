@@ -104,10 +104,6 @@ const JNode = defineComponent({
       ].map((provider) => provider(sharedServices)),
     )
 
-    // const getTemplateScope = (s) => {
-    //   return Object.keys(s || {}).length ? s : undefined
-    // }
-
     watch(
       () => props.field,
       () => {

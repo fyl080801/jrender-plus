@@ -81,13 +81,7 @@ onMounted(async () => {
 <template>
   <div class="flex w-full h-full">
     <div
-      class="
-        w-1/6
-        h-full
-        flex flex-col
-        overflow-auto
-        border-0 border-r border-solid border-gray-300
-      "
+      class="w-1/6 h-full flex flex-col overflow-auto border-0 border-r border-solid border-gray-300"
     >
       <div class="flex py-2 px-3 border-solid border-0 border-b border-gray-300">
         <div class="flex-1">

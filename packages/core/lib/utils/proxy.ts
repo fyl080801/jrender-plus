@@ -1,6 +1,6 @@
-import { toRaw } from 'vue'
 import { assignObject } from './helper'
 import { isArray, isDom, isFunction, isObject } from './helper'
+import { BindProxyProvider } from './types'
 
 const PROXY = '__j_proxy'
 const RAW = '__j_raw'
@@ -53,4 +53,24 @@ export const injectProxy = (services) => {
   }
 
   return inject
+}
+
+export const compute: BindProxyProvider = ({ functional }) => {
+  const computeMatch = /^\$:/g
+
+  return (value) => {
+    const handler = (context) => {
+      try {
+        const keys = Object.keys(context)
+        const funcKeys = Object.keys(functional)
+        return new Function(...[...keys, ...funcKeys], `return ${value.replace(computeMatch, '')}`)(
+          ...[...keys.map((key) => context[key]), ...funcKeys.map((key) => functional[key])],
+        )
+      } catch {
+        //
+      }
+    }
+
+    return typeof value === 'string' && computeMatch.test(value) && handler
+  }
 }

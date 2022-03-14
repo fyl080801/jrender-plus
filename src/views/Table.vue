@@ -21,7 +21,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <JRender
+    <j-render
       v-model="configs.model"
       :fields="configs.fields"
       :listeners="configs.listeners"

@@ -10,8 +10,8 @@ const plugin: Plugin = {
 
 export { JRender, JNode, JSlot }
 export { useRootRender } from './utils/mixins'
-export { useGlobalRender } from './utils/service'
-export { getProxyDefine, injectProxy } from './utils/proxy'
+export { useGlobalRender, defineRenderSetup } from './utils/service'
+export * from './utils/proxy'
 export * from './utils/helper'
-
+export * from './utils/types'
 export default plugin

@@ -1,12 +1,11 @@
-import { inject, provide, reactive, nextTick, onBeforeUnmount, watch } from 'vue'
-import { assignObject, deepClone, isArray, isFunction } from './helper'
+import { inject, provide, nextTick, onBeforeUnmount, watch } from 'vue'
+import { deepClone, isArray, isFunction } from './helper'
 import { createServiceProvider, globalServiceProvider, mergeServices } from './service'
+import { SetupHandle } from './types'
 
 const serviceToken = Symbol('serviceToken')
 
 const setupToken = Symbol('setupToken')
-
-const scopeParentToken = Symbol('scopeParentToken')
 
 export const useJRender = (props?) => {
   if (props) {
@@ -18,7 +17,7 @@ export const useJRender = (props?) => {
   }
 }
 
-export const useRootRender = (setup?) => {
+export const useRootRender = (setup?: SetupHandle) => {
   const provider = createServiceProvider()
 
   if (setup) {
@@ -95,16 +94,4 @@ export const useServices = ({ emit }) => {
   const rootServices = useRootRender()
 
   return mergeServices(globalServiceProvider.getServices(), rootServices, provider.getServices())
-}
-
-export const useScope = (scope) => {
-  const { scope: parent } = inject(scopeParentToken, reactive({ scope: {} }))
-
-  const merged = reactive({
-    scope: assignObject(parent, scope),
-  })
-
-  provide(scopeParentToken, merged)
-
-  return merged
 }
