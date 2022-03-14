@@ -1,14 +1,21 @@
-import { watch, onBeforeUnmount, markRaw, h, defineComponent } from 'vue'
-import { JNode, deepGet, assignObject, toPath, defineRenderSetup } from '@jrender-plus/core'
+import { watch, onBeforeUnmount, markRaw, h, defineComponent, computed } from 'vue'
+import {
+  JNode,
+  assignObject,
+  toPath,
+  defineRenderSetup,
+  compute,
+  getProxyDefine,
+} from '@jrender-plus/core'
 
 export default defineRenderSetup(({ onBeforeBind, onBind }) => {
   // type 简写
-  onBeforeBind(({ props }) => {
-    if (props.field.type !== undefined) {
-      props.field.component = props.field.type
-    }
-
+  onBeforeBind(() => {
     return (field, next) => {
+      if (field?.type !== undefined) {
+        field.component = field.type
+        delete field.type
+      }
       next(field)
     }
   }).name('type')
@@ -88,7 +95,7 @@ export default defineRenderSetup(({ onBeforeBind, onBind }) => {
   })
 
   // for 表达式，还不知道怎么具体实现vue的for
-  onBind(({ context }) => {
+  onBind(({ context, scope, services }) => {
     const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
     return (field, next) => {
@@ -100,21 +107,32 @@ export default defineRenderSetup(({ onBeforeBind, onBind }) => {
         const matched = forAliasRE.exec(child.for)
         if (matched) {
           const [origin, prop, source] = matched
+
+          const ForComponent = defineComponent({
+            setup() {
+              const computeProxy = compute(services)
+
+              const forList = computed(() => {
+                try {
+                  return computeProxy(`$:${source}`)(assignObject(context, scope))
+                } catch {
+                  return []
+                }
+              })
+
+              return () =>
+                forList.value?.map((item, index) => {
+                  return h(JNode, {
+                    field: assignObject(getProxyDefine(child), { for: undefined }),
+                    scope: { [prop]: item, index },
+                    context,
+                  })
+                })
+            },
+          })
+
           return {
-            component: markRaw(
-              defineComponent({
-                setup() {
-                  return () =>
-                    deepGet(context, source)?.map((item, index) => {
-                      return h(JNode, {
-                        field: assignObject(child, { for: undefined }),
-                        scope: { [prop]: item, index },
-                        context,
-                      })
-                    })
-                },
-              }),
-            ),
+            component: markRaw(ForComponent),
           }
         } else {
           return child

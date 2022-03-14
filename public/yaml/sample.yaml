@@ -19,7 +19,6 @@ listeners:
   - watch:
       - $:model.text
     actions:
-      - handler: $:() => console.log('xxx')
       - handler: $:() => tabledata.fetch()
         condition: $:model.text && model.text.length === 5
 
@@ -149,7 +148,7 @@ fields:
                   innerText: $:`选项${item.remark}`
 
       - component: el-select
-        condition: $:!model.checked
+        condition: $:()=>!model.checked
         formItem:
           label: selection
         model: model.selection

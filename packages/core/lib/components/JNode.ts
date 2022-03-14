@@ -1,7 +1,20 @@
-import { defineComponent, computed, toRaw, markRaw, ref, watch, h } from 'vue'
+import {
+  defineComponent,
+  computed,
+  toRaw,
+  markRaw,
+  ref,
+  watch,
+  h,
+  resolveComponent,
+  onMounted,
+  onUpdated,
+  getCurrentInstance,
+} from 'vue'
 import { assignObject, isPromise } from '../utils/helper'
 import { useJRender } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
+import { isOriginTag } from '../utils/domTags'
 import { getProxyDefine, injectProxy } from '../utils/proxy'
 import JSlot from './JSlot'
 
@@ -12,13 +25,18 @@ const JNode = defineComponent({
     scope: { type: Object, default: () => ({}) },
     context: Object,
   },
-  setup(props) {
+  setup(props, ctx) {
+    const { proxy } = getCurrentInstance()
     const { services, slots } = useJRender()
 
     const sharedServices = {
       context: props.context,
       scope: props.scope,
       props,
+      services,
+      injector: (target) => {
+        return injector(target)
+      },
       render: () => {
         render(assignObject(getProxyDefine(toRaw(props.field))))
       },
@@ -65,41 +83,29 @@ const JNode = defineComponent({
     const render = pipeline(
       ...[
         ...services.beforeBindHandlers.map((item) => item.handler),
-        () => async (field, next) => {
-          let nexted
+        () => (field, next) => {
+          if (field?.component !== 'slot') {
+            return next(field)
+          }
 
-          if (field?.component === 'slot') {
-            nexted = next({
-              component: markRaw(JSlot),
-              props: {
-                renderSlot: () => {
-                  const renderer = slots[field.name || 'default']
-                  return renderer && renderer(field.props || {})
-                },
+          next({
+            component: markRaw(JSlot),
+            props: {
+              renderSlot: () => {
+                const renderer = slots[field.name || 'default']
+                return typeof renderer === 'function' && renderer(field.scope || {})
               },
-            })
-          } else {
-            nexted = next(field)
-          }
-
-          if (isPromise(nexted)) {
-            await nexted
-          }
+            },
+          })
         },
-        () => async (field, next) => {
-          renderField.value = injector(getProxyDefine(field))
-          const nexted = next(renderField.value)
-          if (isPromise(nexted)) {
-            await nexted
-          }
+        () => (field, next) => {
+          renderField.value = injector(field)
+          next(renderField.value)
         },
         ...services.bindHandlers.map((item) => item.handler),
-        () => async (field, next) => {
+        () => (field, next) => {
           renderField.value = field
-          const nexted = next(renderField.value)
-          if (isPromise(nexted)) {
-            await nexted
-          }
+          next(renderField.value)
         },
       ].map((provider) => provider(sharedServices)),
     )
@@ -108,21 +114,42 @@ const JNode = defineComponent({
       () => props.field,
       () => {
         if (props.field) {
-          render(assignObject(getProxyDefine(toRaw(props.field))))
+          render(props.field)
         }
       },
       { immediate: true },
     )
 
+    onMounted(() => {
+      if (renderField.value?.ref) {
+        // eslint-disable-next-line vue/no-mutating-props
+        props.context.refs[renderField.value.ref] = proxy.$refs[renderField.value.ref]
+      }
+
+      ctx.emit('rendered')
+    })
+
+    onUpdated(() => {
+      if (renderField.value?.ref) {
+        // eslint-disable-next-line vue/no-mutating-props
+        props.context.refs[renderField.value.ref] = proxy.$refs[renderField.value.ref]
+      }
+    })
+
     return () => {
-      return (
-        renderField.value &&
-        renderField.value.component &&
-        h(
-          services.components[renderField.value.component] || renderField.value.component,
-          renderField.value.props,
-          renderSlots.value,
-        )
+      if (!renderField.value || !renderField.value.component) {
+        return
+      }
+      console.log('xxx')
+      return h(
+        services.components[renderField.value.component] ||
+          (typeof renderField.value.component === 'string'
+            ? isOriginTag(renderField.value.component)
+              ? renderField.value.component
+              : resolveComponent(renderField.value.component)
+            : getProxyDefine(renderField.value.component)),
+        renderField.value.props,
+        renderSlots.value,
       )
     }
   },

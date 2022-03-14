@@ -7,7 +7,7 @@ export const dbTables = {
 }
 
 export const initLocalDB = async () => {
-  const currentVerion = 15
+  const currentVerion = 18
 
   await openDB(STORAGE, currentVerion, {
     upgrade: (db) => {

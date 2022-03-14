@@ -1,4 +1,4 @@
-import { inject, provide, nextTick, onBeforeUnmount, watch } from 'vue'
+import { inject, provide, onMounted, onBeforeUnmount, watch } from 'vue'
 import { deepClone, isArray, isFunction } from './helper'
 import { createServiceProvider, globalServiceProvider, mergeServices } from './service'
 import { SetupHandle } from './types'
@@ -30,59 +30,71 @@ export const useRootRender = (setup?: SetupHandle) => {
 
 export const useListener = (props, { injector }) => {
   const watchList = []
+
+  const createWatchList = () => {
+    releaseWatchList()
+
+    if (!props.listeners || !isArray(props.listeners)) {
+      return
+    }
+
+    props.listeners?.forEach((item) => {
+      const injected = injector(deepClone(item))
+
+      const watcher = isFunction(injected.watch)
+        ? injected.watch
+        : isArray(injected.watch)
+        ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
+        : () => injected.watch
+
+      watchList.push(
+        watch(
+          watcher,
+          () => {
+            injected.actions?.forEach((action) => {
+              if (action.condition === undefined || !!action.condition) {
+                if (isFunction(action.handler)) {
+                  if (action.timeout) {
+                    setTimeout(() => {
+                      action.handler()
+                    }, action.timeout)
+                  } else {
+                    action.handler()
+                  }
+                }
+              }
+            })
+          },
+          {
+            deep: injected.deep,
+            immediate: injected.immediate,
+          },
+        ),
+      )
+    })
+  }
+
+  const releaseWatchList = () => {
+    if (watchList) {
+      watchList.forEach((watcher) => watcher())
+      watchList.length = 0
+    }
+  }
+
   watch(
     [() => props.listeners, () => props.modelValue, () => props.dataSource, () => props.fields],
     () => {
-      watchList.forEach((watcher) => watcher())
-      watchList.length = 0
-
-      if (!props.listeners || !isArray(props.listeners)) {
-        return
-      }
-
-      nextTick(() => {
-        props.listeners?.forEach((item) => {
-          const injected = injector(deepClone(item))
-
-          const watcher = isFunction(injected.watch)
-            ? injected.watch
-            : isArray(injected.watch)
-            ? injected.watch.map((sw, index) => (isFunction(sw) ? sw : () => injected.watch[index]))
-            : () => injected.watch
-
-          watchList.push(
-            watch(
-              watcher,
-              () => {
-                injected.actions?.forEach((action) => {
-                  if (action.condition === undefined || !!action.condition) {
-                    if (isFunction(action.handler)) {
-                      if (action.timeout) {
-                        setTimeout(() => {
-                          action.handler()
-                        }, action.timeout)
-                      } else {
-                        action.handler()
-                      }
-                    }
-                  }
-                })
-              },
-              {
-                deep: injected.deep,
-                immediate: injected.immediate,
-              },
-            ),
-          )
-        })
-      })
+      createWatchList()
     },
-    { deep: false, immediate: true },
+    { deep: false },
   )
 
+  onMounted(() => {
+    createWatchList()
+  })
+
   onBeforeUnmount(() => {
-    watchList.forEach((watcher) => watcher())
-    watchList.length = 0
+    releaseWatchList()
   })
 }
 
