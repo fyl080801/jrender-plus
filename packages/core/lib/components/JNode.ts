@@ -11,7 +11,7 @@ import {
   onUpdated,
   getCurrentInstance,
 } from 'vue'
-import { assignObject, isPromise } from '../utils/helper'
+import { assignObject } from '../utils/helper'
 import { useJRender } from '../utils/mixins'
 import { pipeline } from '../utils/pipeline'
 import { isOriginTag } from '../utils/domTags'
@@ -32,13 +32,13 @@ const JNode = defineComponent({
     const sharedServices = {
       context: props.context,
       scope: props.scope,
-      props,
+      props: { field: toRaw(props.field) },
       services,
       injector: (target) => {
         return injector(target)
       },
       render: () => {
-        render(assignObject(getProxyDefine(toRaw(props.field))))
+        render(sharedServices.props.field)
       },
     }
 
@@ -99,25 +99,24 @@ const JNode = defineComponent({
           })
         },
         () => (field, next) => {
-          renderField.value = injector(field)
-          next(renderField.value)
+          next(injector(field))
         },
         ...services.bindHandlers.map((item) => item.handler),
         () => (field, next) => {
+          next(field)
           renderField.value = field
-          next(renderField.value)
         },
       ].map((provider) => provider(sharedServices)),
     )
 
     watch(
       () => props.field,
-      () => {
-        if (props.field) {
-          render(props.field)
+      (value) => {
+        if (value) {
+          sharedServices.props.field = toRaw(value)
+          render(sharedServices.props.field)
         }
       },
-      { immediate: true },
     )
 
     onMounted(() => {
@@ -125,6 +124,8 @@ const JNode = defineComponent({
         // eslint-disable-next-line vue/no-mutating-props
         props.context.refs[renderField.value.ref] = proxy.$refs[renderField.value.ref]
       }
+
+      render(sharedServices.props.field)
 
       ctx.emit('rendered')
     })
@@ -140,7 +141,6 @@ const JNode = defineComponent({
       if (!renderField.value || !renderField.value.component) {
         return
       }
-      console.log('xxx')
       return h(
         services.components[renderField.value.component] ||
           (typeof renderField.value.component === 'string'

@@ -10,12 +10,13 @@ import {
 
 export default defineRenderSetup(({ onBeforeBind, onBind }) => {
   // type 简写
-  onBeforeBind(() => {
+  onBeforeBind(({ props }) => {
+    if (props.field?.type !== undefined) {
+      props.field.component = props.field.type
+      delete props.field.type
+    }
+
     return (field, next) => {
-      if (field?.type !== undefined) {
-        field.component = field.type
-        delete field.type
-      }
       next(field)
     }
   }).name('type')
