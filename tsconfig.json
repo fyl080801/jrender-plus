@@ -1,6 +1,6 @@
 {
   "vueCompilerOptions": {
-    "experimentalCompatMode": 3
+    "target": 3
   },
   "compilerOptions": {
     "target": "esnext",

@@ -138,6 +138,7 @@ const JNode = defineComponent({
     })
 
     return () => {
+      console.log('rendered')
       if (!renderField.value || !renderField.value.component) {
         return
       }
