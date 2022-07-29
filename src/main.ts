@@ -7,7 +7,7 @@ import 'virtual:windi.css'
 
 const bootstrap = async () => {
   try {
-    await initLocalDB()
+    // await initLocalDB()
 
     const app = createApp(App)
 

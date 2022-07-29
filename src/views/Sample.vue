@@ -2,7 +2,7 @@
 import { reactive, onMounted, ref } from 'vue'
 import yaml from 'js-yaml'
 import { saveAs } from 'file-saver'
-import ejs from 'ejs'
+// import ejs from 'ejs'
 import { CodeEditor, SampleButton, Document } from '@/components'
 import { useSampleStore } from '@/store'
 
@@ -59,16 +59,16 @@ fields:
 }
 
 const exportTemplate = () => {
-  fetch('/template/template.ejs').then((response) => {
-    response.text().then((text) => {
-      saveAs(
-        new Blob([ejs.render(text, { model: JSON.stringify(configs).replace(/(\n|\r)/g, '') })], {
-          type: 'text/plain;charset=utf-8',
-        }),
-        'jrender-plus.html',
-      )
-    })
-  })
+  // fetch('/template/template.ejs').then((response) => {
+  //   response.text().then((text) => {
+  //     saveAs(
+  //       new Blob([ejs.render(text, { model: JSON.stringify(configs).replace(/(\n|\r)/g, '') })], {
+  //         type: 'text/plain;charset=utf-8',
+  //       }),
+  //       'jrender-plus.html',
+  //     )
+  //   })
+  // })
 }
 
 onMounted(async () => {

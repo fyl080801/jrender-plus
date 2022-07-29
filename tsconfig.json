@@ -1,4 +1,7 @@
 {
+  "vueCompilerOptions": {
+    "target": 3
+  },
   "compilerOptions": {
     "target": "esnext",
     "useDefineForClassFields": true,

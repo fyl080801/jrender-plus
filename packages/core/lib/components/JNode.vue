@@ -8,13 +8,13 @@ import JSlot from './JSlot'
 const props = defineProps({
   field: Object,
   scope: Object,
-  temp: Object,
+  extra: Object,
   context: Object,
 })
 
 const { services, slots } = useJRender()
 
-const { scope } = useScope(assignObject(props.scope || {}, props.temp))
+const { scope } = useScope(assignObject(props.scope || {}, props.extra))
 
 const sharedServices = {
   context: props.context,
@@ -127,7 +127,7 @@ export default defineComponent({
         v-for="child in slot.children"
         :field="child"
         :scope="scope"
-        :temp="getTemplateScope(templateScope)"
+        :extra="getTemplateScope(templateScope)"
         :context="context"
       />
     </template>
