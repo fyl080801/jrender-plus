@@ -1,6 +1,19 @@
+# 忽略 node_modules 目录
 node_modules
+
+# 忽略 .env 文件
+.env
+
+# 忽略日志文件
+*.log
+
+# 忽略 OS 生成的文件
 .DS_Store
+Thumbs.db
+
+# 忽略编辑器生成的文件
+.vscode
+.idea
+*.swp
+
 dist
-dist-ssr
-*.local
-yarn-error.log

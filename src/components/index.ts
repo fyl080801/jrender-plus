@@ -1,6 +1,0 @@
-export * from './Element'
-export * from './Antd'
-export * from './Render'
-export * from './Common'
-export * from './CodeEditor'
-export * from './Document'

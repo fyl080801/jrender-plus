@@ -1,10 +1,11 @@
 {
   "name": "@jrender-plus/core",
-  "version": "0.4.0",
-  "description": "> TODO: description",
-  "author": "fengyuanliang3 <fengyuanliang2@jd.com>",
+  "version": "1.0.0",
+  "description": "",
+  "author": "fyl080801 <fyl080801@hotmail.com>",
   "homepage": "",
-  "license": "ISC",
+  "license": "MIT",
+  "type": "module",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
   "exports": {
@@ -25,10 +26,6 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "dist": "yarn clean && vite build"
-  },
-  "gitHead": "1c9316e0b6df232fb6047b3fd4f165d515cb5cfa",
-  "dependencies": {
-    "vue": "^3.2.37"
+    "build": "pnpm run clean && vite build"
   }
 }

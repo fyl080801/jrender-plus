@@ -1,0 +1,25 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && vite build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@jrender-plus/core": "workspace:*",
+    "@jrender-plus/element-plus": "workspace:*",
+    "@jrender-plus/extends": "workspace:*",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1"
+  }
+}

@@ -5,6 +5,11 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   build: {
     minify: true,
+    rollupOptions: {
+      output: {
+        exports: 'named',
+      },
+    },
   },
   plugins: [vue()],
 })
