@@ -3,7 +3,6 @@ import App from './App.vue'
 // import { useElementUI, useAntd, useRender } from './components'
 import { useAppRouter } from './router'
 import './index.css'
-// import { initLocalDB } from './utils/storage'
 // import 'virtual:windi.css'
 
 const bootstrap = async () => {
